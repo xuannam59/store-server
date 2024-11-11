@@ -6,6 +6,7 @@ import { User } from './schemas/user.schema';
 import mongoose, { Model, mongo } from 'mongoose';
 import { hashPasswordHelper } from 'src/helpers/util';
 import aqp from 'api-query-params';
+import { RegisterUser } from '@/auth/dto/auth-user.dto';
 
 
 @Injectable()
@@ -92,13 +93,40 @@ export class UsersService {
     return user;
   }
 
-  async findOneByUsername(username: string) {
+  async findOneByEmail(email: string) {
     const user = await this.userModel.findOne({
-      email: username,
+      email: email,
       isDeleted: false
     })
 
     return user;
+  }
+
+  async register(registerUser: RegisterUser) {
+    const { email, password, confirmPassword, name, phone, address } = registerUser
+
+    const isExist = await this.userModel.findOne({
+      email: email,
+      isDeleted: false
+    });
+
+    if (isExist)
+      throw new BadRequestException(`email: ${email} đã tồn tại trong hệ thống`)
+
+    if (password !== confirmPassword)
+      throw new BadRequestException("password/ confirmPassword không giống nhau")
+
+    const hashPassword = hashPasswordHelper(password)
+
+    const newUser = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      phone,
+      address,
+      role: "USER"
+    })
+    return newUser;
   }
 
   // [PATCH] /users/:id
