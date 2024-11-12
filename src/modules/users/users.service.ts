@@ -88,45 +88,9 @@ export class UsersService {
     const user = await this.userModel.findOne({
       _id: id,
       isDeleted: false
-    }).select("-password") ?? "Không tìm thấy người dùng";
+    }).select("-password");
 
     return user;
-  }
-
-  async findOneByEmail(email: string) {
-    const user = await this.userModel.findOne({
-      email: email,
-      isDeleted: false
-    })
-
-    return user;
-  }
-
-  async register(registerUser: RegisterUser) {
-    const { email, password, confirmPassword, name, phone, address } = registerUser
-
-    const isExist = await this.userModel.findOne({
-      email: email,
-      isDeleted: false
-    });
-
-    if (isExist)
-      throw new BadRequestException(`email: ${email} đã tồn tại trong hệ thống`)
-
-    if (password !== confirmPassword)
-      throw new BadRequestException("password/ confirmPassword không giống nhau")
-
-    const hashPassword = hashPasswordHelper(password)
-
-    const newUser = await this.userModel.create({
-      name,
-      email,
-      password: hashPassword,
-      phone,
-      address,
-      role: "USER"
-    })
-    return newUser;
   }
 
   // [PATCH] /users/:id
@@ -155,6 +119,58 @@ export class UsersService {
         deletedAt: new Date()
       }
     );
+    return result;
+  }
+
+  async findOneByEmail(email: string) {
+    const user = await this.userModel.findOne({
+      email: email,
+      isDeleted: false
+    })
+
+    return user.toObject();
+  }
+
+  async findUserByToken(refreshToken: string) {
+    const user = this.userModel.findOne({
+      refresh_token: refreshToken,
+      isDeleted: false
+    });
+    return user;
+  }
+
+  // [POST] /auth/register
+  async register(registerUser: RegisterUser) {
+    const { email, password, confirmPassword, name, phone, address } = registerUser
+
+    const isExist = await this.userModel.findOne({
+      email: email,
+      isDeleted: false
+    });
+
+    if (isExist)
+      throw new BadRequestException(`email: ${email} đã tồn tại trong hệ thống`)
+
+    if (password !== confirmPassword)
+      throw new BadRequestException("password/ confirmPassword không giống nhau")
+
+    const hashPassword = hashPasswordHelper(password)
+
+    const newUser = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      phone,
+      address,
+      role: "USER"
+    })
+    return newUser;
+  }
+
+  async updateUserRefresh(refreshToken: string, _id: string) {
+    const result = await this.userModel.updateOne({ _id }, {
+      refresh_token: refreshToken
+    });
     return result;
   }
 }
