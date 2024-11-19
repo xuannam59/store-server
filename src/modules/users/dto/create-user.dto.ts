@@ -16,4 +16,5 @@ export class CreateUserDto {
     address: string;
     gender: string;
     role: string;
+    avatar: string;
 }

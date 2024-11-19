@@ -27,6 +27,9 @@ export class User {
     address: string;
 
     @Prop()
+    avatar: string;
+
+    @Prop()
     role: string;
 
     @Prop()

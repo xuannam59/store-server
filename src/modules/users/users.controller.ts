@@ -16,7 +16,6 @@ export class UsersController {
   }
 
   // [GET] /users
-  @Public()
   @ResponseMessage("Fetch users with pagination")
   @Get()
   findAll(

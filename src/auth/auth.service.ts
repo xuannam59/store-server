@@ -29,7 +29,7 @@ export class AuthService {
 
   // [POST] /auth/login
   async login(user: IUser, res: Response) {
-    const { _id, name, email, role } = user;
+    const { _id, name, email, role, avatar } = user;
     const payload = {
       sub: "token access",
       iss: "from server",
@@ -47,7 +47,7 @@ export class AuthService {
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true, // only the server can get it
-      maxAge: ms(this.configService.get<string>("EXPIRE_COOKIES"))
+      maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
     });
 
     return {
@@ -56,7 +56,8 @@ export class AuthService {
         _id,
         name,
         email,
-        role
+        role,
+        avatar
       }
     };
   }
@@ -101,7 +102,7 @@ export class AuthService {
       if (!user)
         throw new BadRequestException("Refresh token không hợp lệ . Vui lòng login lại");
 
-      const { _id, name, email, role } = user
+      const { _id, name, email, role, avatar } = user
       const payload = {
         subject: "",
         iss: "",
@@ -117,7 +118,7 @@ export class AuthService {
       await this.usersService.updateUserRefresh(refresh_token, _id.toString());
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true, // only the server can get it
-        maxAge: ms(this.configService.get<string>("EXPIRE_COOKIES"))
+        maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
       });
 
       return {
@@ -126,7 +127,8 @@ export class AuthService {
           _id,
           name,
           email,
-          role
+          role,
+          avatar
         }
       }
 

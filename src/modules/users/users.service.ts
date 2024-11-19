@@ -15,8 +15,6 @@ export class UsersService {
     @InjectModel(User.name) private userModel: Model<User>
   ) { }
 
-  // hash password
-
 
   // [POST] /users
   async create(createUserDto: CreateUserDto) {
@@ -64,6 +62,7 @@ export class UsersService {
     const result = await this.userModel
       .find(filter)
       .skip(skip)
+      .sort(sort as any)
       .limit(defaultLimit)
       .populate(population)
       .select("-password")
@@ -128,7 +127,7 @@ export class UsersService {
       isDeleted: false
     })
 
-    return user.toObject();
+    return user;
   }
 
   async findUserByToken(refreshToken: string) {
