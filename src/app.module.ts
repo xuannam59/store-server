@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FileModule } from './modules/file/file.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
   imports: [
@@ -16,6 +17,10 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
     MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGO_URL'),
+        connectionFactory: (connection) => {
+          connection.plugin(mongooseSlugUpdater); // Add the plugin here
+          return connection;
+        }
       }),
       inject: [ConfigService],
     }),

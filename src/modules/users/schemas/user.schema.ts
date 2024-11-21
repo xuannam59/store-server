@@ -32,6 +32,13 @@ export class User {
     @Prop()
     role: string;
 
+    @Prop({
+        type: String,
+        slug: 'name',
+        unique: true,
+    })
+    slug: string;
+
     @Prop()
     refresh_token: string
 
@@ -43,6 +50,12 @@ export class User {
 
     @Prop({ type: Object })
     updatedBy: {
+        _id: mongoose.Schema.Types.ObjectId,
+        email: string
+    };
+
+    @Prop({ type: Object })
+    deletedBy: {
         _id: mongoose.Schema.Types.ObjectId,
         email: string
     };

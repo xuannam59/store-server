@@ -7,6 +7,7 @@ import mongoose, { Model, mongo } from 'mongoose';
 import { hashPasswordHelper } from 'src/helpers/util';
 import aqp from 'api-query-params';
 import { RegisterUser } from '@/auth/dto/auth-user.dto';
+import { IUser } from './users.inerface';
 
 
 @Injectable()
@@ -17,8 +18,8 @@ export class UsersService {
 
 
   // [POST] /users
-  async create(createUserDto: CreateUserDto) {
-    const { name, email, password, age, gender, address, role } = createUserDto;
+  async create(createUserDto: CreateUserDto, user: IUser) {
+    const { name, email, password, age, gender, address, role, phone } = createUserDto;
 
     const isExist = await this.userModel.findOne({
       email
@@ -26,7 +27,6 @@ export class UsersService {
     if (isExist) {
       throw new BadRequestException(`Email: ${email} đã tồn tại trong hệ thống`);
     }
-
     const hashPassword = hashPasswordHelper(password);
 
     const result = await this.userModel.create({
@@ -36,7 +36,12 @@ export class UsersService {
       age,
       gender,
       address,
-      role
+      role,
+      phone,
+      createdBy: {
+        _id: user._id,
+        email: user.email
+      }
     })
 
     return {
@@ -65,7 +70,7 @@ export class UsersService {
       .sort(sort as any)
       .limit(defaultLimit)
       .populate(population)
-      .select("-password")
+      .select("-password -refresh_token")
       .exec();
 
     return {
@@ -87,33 +92,51 @@ export class UsersService {
     const user = await this.userModel.findOne({
       _id: id,
       isDeleted: false
-    }).select("-password");
+    }).select("-password -refresh_token");
 
     return user;
   }
 
   // [PATCH] /users/:id
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id không hợp lệ");
 
     const result = await this.userModel.updateOne(
       { _id: id },
-      { ...updateUserDto }
+      {
+        ...updateUserDto,
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      }
     )
     return result;
   }
 
   // [DELETE] /users/:id
-  async remove(id: string) {
+  async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id không hợp lệ");
+
+    const isExist = await this.userModel.findById(id);
+    if (!isExist) {
+      throw new BadRequestException("Không tìm thấy người dùng");
+    }
+    if (isExist.role === "ADMIN") {
+      throw new BadRequestException("Tài khoản admin không thể xoá");
+    }
 
     const result = await this.userModel.updateOne(
       {
         _id: id
       },
       {
+        deletedBy: {
+          _id: user._id,
+          email: user.email
+        },
         isDeleted: true,
         deletedAt: new Date()
       }
