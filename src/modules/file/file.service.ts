@@ -9,7 +9,9 @@ export class FileService {
     async uploadFile(file: Express.Multer.File) {
         try {
             const link = await this.cloudinaryService.uploadFile(file);
-            return link.secure_url;
+            return {
+                fileUpload: link.secure_url
+            };
         } catch (error) {
             throw new BadGatewayException("Error unable to upload file");
         }

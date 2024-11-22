@@ -7,6 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { FileModule } from './modules/file/file.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
+import { ProductsModule } from './modules/products/products.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -27,7 +28,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     UsersModule,
     AuthModule,
     FileModule,
-    CloudinaryModule
+    CloudinaryModule,
+    ProductsModule
   ],
   controllers: [AppController],
   providers: [AppService],
