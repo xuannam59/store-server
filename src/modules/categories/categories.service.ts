@@ -1,39 +1,38 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { IUser } from '../users/users.inerface';
+import { CreateCategoryDto } from './dto/create-category.dto';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Product } from './schemas/product.schema';
+import { Category } from './schemas/category.schema';
 import mongoose, { Model } from 'mongoose';
+import { IUser } from '../users/users.inerface';
 import aqp from 'api-query-params';
-import { title } from 'process';
 
 @Injectable()
-export class ProductsService {
-  constructor(
-    @InjectModel(Product.name) private productModel: Model<Product>
-  ) { }
+export class CategoriesService {
+  constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
 
-  async create(createProductDto: CreateProductDto, user: IUser) {
-    const { title, description, price,
-      quantity, discountPercentage, thumbnail, categoryId,
-      status, slider } = createProductDto;
+  async create(createCategoryDto: CreateCategoryDto, user: IUser) {
+    const { title, description, status, parentId } = createCategoryDto;
 
-    const product = await this.productModel.create({
-      title, description, price,
-      quantity, discountPercentage,
-      thumbnail, status, slider, categoryId,
+    const exist = await this.categoryModel.findOne({
+      title: title,
+      isDeleted: false
+    });
+    if (exist)
+      throw new BadRequestException("Danh mục này đã tồn tại");
+    const category = await this.categoryModel.create({
+      title, description, status, parentId,
       createdBy: {
         _id: user._id,
         email: user.email
       }
     })
     return {
-      _id: product._id
+      _id: category._id
     };
   }
 
-  async findAll(current: number, pageSize: number, qs: string) {
+  async findAll(current: number, pageSize: number, qs) {
     const { filter, sort, population, projection } = aqp(qs)
     delete filter.current
     delete filter.pageSize
@@ -42,17 +41,17 @@ export class ProductsService {
     let currentDefault = current ?? 1;
     let limitDefault = pageSize ?? 10;
 
-    const totalItems = await this.productModel.countDocuments(filter);
+    const totalItems = await this.categoryModel.countDocuments(filter);
     const totalPage = Math.ceil(totalItems / limitDefault);
 
     let skip = (currentDefault - 1) * limitDefault;
 
-    const result = await this.productModel
+    const result = await this.categoryModel
       .find(filter)
       .skip(skip)
       .limit(limitDefault)
       .sort(sort as any)
-      .populate({ path: "categoryId", select: { title: 1 } })
+      .populate({ path: "parentId", select: { title: 1 } })
       .exec();
 
     return {
@@ -70,32 +69,31 @@ export class ProductsService {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id không hợp lệ")
 
-    const result = await this.productModel.findOne({
+    const result = await this.categoryModel.findOne({
       _id: id,
       isDeleted: false
     });
 
     if (!result)
-      throw new BadRequestException("Không tìm thấy sản phẩm")
+      throw new BadRequestException("Không tìm thấy danh mục")
 
     return result;
   }
 
-  async update(id: string, updateProductDto: UpdateProductDto, user: IUser) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id không hợp lệ")
 
-    const result = await this.productModel.updateOne({
+    const result = await this.categoryModel.updateOne({
       _id: id,
       isDeleted: false
     }, {
-      ...updateProductDto,
+      ...updateCategoryDto,
       updatedBy: {
         _id: user._id,
         email: user.email
       }
     });
-
     return result;
   }
 
@@ -103,7 +101,7 @@ export class ProductsService {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id không hợp lệ")
 
-    const result = await this.productModel.updateOne({
+    const result = await this.categoryModel.updateOne({
       _id: id,
     }, {
       isDeleted: true,
