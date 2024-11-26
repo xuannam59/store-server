@@ -9,6 +9,7 @@ import { FileModule } from './modules/file/file.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CategoriesModule } from './modules/categories/categories.module';
+import { MailModule } from './modules/mail/mail.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -31,7 +32,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     FileModule,
     CloudinaryModule,
     ProductsModule,
-    CategoriesModule
+    CategoriesModule,
+    MailModule
   ],
   controllers: [AppController],
   providers: [AppService],
