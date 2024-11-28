@@ -74,7 +74,7 @@ export class PermissionsService {
     });
 
     if (!result)
-      throw new BadRequestException("Không tìm thấy Vai trò")
+      throw new BadRequestException("Không tìm thấy quyền hạn")
 
     return result;
   }

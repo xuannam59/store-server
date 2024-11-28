@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
-import { User } from '@/decorators/customize';
+import { ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.inerface';
 
 @Controller('permissions')
@@ -10,6 +10,7 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
 
   @Post()
+  @ResponseMessage("Create a new permission")
   create(
     @Body() createPermissionDto: CreatePermissionDto,
     @User() user: IUser
@@ -18,6 +19,7 @@ export class PermissionsController {
   }
 
   @Get()
+  @ResponseMessage("fetch permissions with pagination")
   findAll(
     @Query("current") current: string,
     @Query("pageSize") pageSize: string,
@@ -27,6 +29,7 @@ export class PermissionsController {
   }
 
   @Get(':id')
+  @ResponseMessage("fetch a permission by id")
   findOne(
     @Param('id') id: string
   ) {
@@ -34,6 +37,7 @@ export class PermissionsController {
   }
 
   @Patch(':id')
+  @ResponseMessage("update a  permission")
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
@@ -43,6 +47,7 @@ export class PermissionsController {
   }
 
   @Delete(':id')
+  @ResponseMessage("delete a  permission")
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.permissionsService.remove(id, user);
   }
