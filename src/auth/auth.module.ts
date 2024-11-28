@@ -7,10 +7,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersModule } from '@/modules/users/users.module';
 import { JwtStrategy } from './passport/jwt.strategy';
+import { RolesModule } from '@/modules/roles/roles.module';
 
 @Module({
   imports: [
     UsersModule,
+    RolesModule,
     PassportModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({

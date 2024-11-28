@@ -33,6 +33,12 @@ export class Product {
     @Prop()
     status: string
 
+    @Prop({ type: Number, default: 0 })
+    rate: number
+
+    @Prop()
+    version: string[]
+
     @Prop({
         type: String,
         slug: "title",

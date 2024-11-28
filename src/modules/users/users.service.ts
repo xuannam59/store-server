@@ -8,12 +8,14 @@ import { hashPasswordHelper } from 'src/helpers/util';
 import aqp from 'api-query-params';
 import { RegisterUser } from '@/auth/dto/auth-user.dto';
 import { IUser } from './users.inerface';
+import { Role } from '../roles/schemas/role.schema';
 
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<User>
+    @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(Role.name) private roleModel: Model<Role>,
   ) { }
 
 
@@ -92,7 +94,9 @@ export class UsersService {
     const user = await this.userModel.findOne({
       _id: id,
       isDeleted: false
-    }).select("-password -refresh_token");
+    })
+      .select("-password -refresh_token")
+      .populate({ path: "role", select: { name: 1 } });
 
     return user;
   }
@@ -124,9 +128,9 @@ export class UsersService {
     if (!isExist) {
       throw new BadRequestException("Không tìm thấy người dùng");
     }
-    if (isExist.role === "ADMIN") {
-      throw new BadRequestException("Tài khoản admin không thể xoá");
-    }
+    // if (isExist.role === "ADMIN") {
+    //   throw new BadRequestException("Tài khoản admin không thể xoá");
+    // }
 
     const result = await this.userModel.updateOne(
       {
@@ -148,7 +152,7 @@ export class UsersService {
     const user = await this.userModel.findOne({
       email: email,
       isDeleted: false
-    })
+    }).populate({ path: "role", select: { name: 1 } })
 
     return user;
   }
@@ -157,7 +161,7 @@ export class UsersService {
     const user = this.userModel.findOne({
       refresh_token: refreshToken,
       isDeleted: false
-    });
+    }).populate({ path: "role", select: { name: 1 } });
     return user;
   }
 
@@ -178,13 +182,17 @@ export class UsersService {
 
     const hashPassword = hashPasswordHelper(password)
 
+    const role = await this.roleModel.findOne({
+      name: "NORMAL_USER"
+    });
+
     const newUser = await this.userModel.create({
       name,
       email,
       password: hashPassword,
       phone,
       address,
-      role: "USER"
+      role: role._id
     })
     return newUser;
   }

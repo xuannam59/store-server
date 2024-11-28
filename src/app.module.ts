@@ -10,6 +10,8 @@ import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CategoriesModule } from './modules/categories/categories.module';
 import { MailModule } from './modules/mail/mail.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -33,7 +35,9 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     CloudinaryModule,
     ProductsModule,
     CategoriesModule,
-    MailModule
+    MailModule,
+    RolesModule,
+    PermissionsModule
   ],
   controllers: [AppController],
   providers: [AppService],

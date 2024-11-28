@@ -1,4 +1,5 @@
-import { IsArray, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import mongoose from "mongoose";
 
 export class CreateProductDto {
     @IsNotEmpty({ message: "title không được để trống" })
@@ -29,5 +30,6 @@ export class CreateProductDto {
     @IsString({ each: true, message: "slider có định dạng string" })
     slider: string[]
 
-    categoryId: string
+    @IsMongoId()
+    categoryId: mongoose.Schema.Types.ObjectId
 }
