@@ -3,12 +3,11 @@ import { UsersService } from '@/modules/users/users.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { comparePasswordHelper } from 'src/helpers/util';
-import { RegisterUser } from './dto/auth-user.dto';
+import { ConfirmCode, CreateForgotPassword, RegisterUser, ResetPassword } from './dto/auth-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
 import { RolesService } from '@/modules/roles/roles.service';
-import { permission } from 'process';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +22,14 @@ export class AuthService {
     const user = (await this.usersService.findOneByEmail(username));
     if (user) {
       const userRole = user.role as unknown as { _id: string, name: string }
-      const term = await this.roleService.findOne(userRole._id);
+      const temp = await this.roleService.findOne(userRole._id);
 
       const isValidPassword = comparePasswordHelper(password, user.password);
       if (isValidPassword) {
 
         const objectUser = {
           ...user.toObject(),
-          permissions: term?.permissions ?? []
+          permissions: temp?.permissions ?? []
         }
 
         return objectUser;
@@ -58,7 +57,7 @@ export class AuthService {
     await this.usersService.updateUserRefresh(refresh_token, _id);
 
     const userRole = user.role as unknown as { _id: string, name: string }
-    const term = await this.roleService.findOne(userRole._id);
+    const temp = await this.roleService.findOne(userRole._id);
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true, // only the server can get it
@@ -73,7 +72,7 @@ export class AuthService {
         email,
         role,
         avatar,
-        permissions: term?.permissions ?? []
+        permissions: temp?.permissions ?? []
       }
     };
   }
@@ -106,14 +105,14 @@ export class AuthService {
   async getAccount(user: IUser) {
     const { _id, name, email, role, avatar } = user;
     const userRole = user.role as unknown as { _id: string, name: string }
-    const term = await this.roleService.findOne(userRole._id);
+    const temp = await this.roleService.findOne(userRole._id);
     return {
       _id,
       name,
       email,
       role,
       avatar,
-      permissions: term?.permissions ?? []
+      permissions: temp?.permissions ?? []
     }
   }
 
@@ -142,7 +141,7 @@ export class AuthService {
       const refresh_token = this.createRefreshToken(payload);
 
       const userRole = user.role as unknown as { _id: string, name: string }
-      const term = await this.roleService.findOne(userRole._id);
+      const temp = await this.roleService.findOne(userRole._id);
 
       await this.usersService.updateUserRefresh(refresh_token, _id.toString());
       res.cookie("refresh_token", refresh_token, {
@@ -158,12 +157,35 @@ export class AuthService {
           email,
           role,
           avatar,
-          permissions: term?.permissions ?? []
+          permissions: temp?.permissions ?? []
         }
       }
 
     } catch (error) {
       throw new BadRequestException("Refresh token không hợp lệ . Vui lòng login lại")
     }
+  }
+
+  // [POST] /auth/forgot-password
+  async handleForgotPassword(data: CreateForgotPassword) {
+    const { email } = data;
+    const result = await this.usersService.forgotPassword(email);
+    return result;
+  }
+
+  // [POST] /auth/confirm-code
+  async handleConfirmCode(data: ConfirmCode) {
+    const { email, otp } = data
+    const result = await this.usersService.confirmCode(email, otp);
+    return {
+      email: result.email
+    }
+  }
+
+  // [POST] /auth/reset-password
+  async handleResetpassword(data: ResetPassword) {
+    const { email, password, confirmPassword, otp } = data;
+    const result = await this.usersService.resetPassword(email, otp, password, confirmPassword);
+    return result;
   }
 }

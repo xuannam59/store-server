@@ -14,7 +14,7 @@ export class FileController {
   uploadFile(@UploadedFile(
     new ParseFilePipeBuilder()
       .addFileTypeValidator({
-        fileType: /^(jpg|jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|application\/msword|text\/plain|)$/i,
+        fileType: /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|application\/msword|text\/plain|)$/i,
       })
       .addMaxSizeValidator({
         maxSize: 1000 * 1024, // 1MB
@@ -23,8 +23,7 @@ export class FileController {
         errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
       }),
   ) file: Express.Multer.File) {
-    // return this.fileService.uploadFile(file);
-    console.log(file)
+    return this.fileService.uploadFile(file);
   }
 
 }

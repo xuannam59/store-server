@@ -9,6 +9,10 @@ import aqp from 'api-query-params';
 import { RegisterUser } from '@/auth/dto/auth-user.dto';
 import { IUser } from './users.inerface';
 import { Role } from '../roles/schemas/role.schema';
+import { generateRandomNumber } from '@/helpers/generate';
+import { ForgotPassword } from './schemas/forgot-password.schema';
+import { MailService } from '../mail/mail.service';
+import { subscribe } from 'diagnostics_channel';
 
 
 @Injectable()
@@ -16,6 +20,8 @@ export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     @InjectModel(Role.name) private roleModel: Model<Role>,
+    @InjectModel(ForgotPassword.name) private forgotPasswordModel: Model<ForgotPassword>,
+    private mailerService: MailService
   ) { }
 
 
@@ -71,7 +77,7 @@ export class UsersService {
       .skip(skip)
       .sort(sort as any)
       .limit(defaultLimit)
-      .populate(population)
+      .populate({ path: "role", select: { name: 1 } })
       .select("-password -refresh_token")
       .exec();
 
@@ -183,7 +189,7 @@ export class UsersService {
     const hashPassword = hashPasswordHelper(password)
 
     const role = await this.roleModel.findOne({
-      name: "NORMAL_USER"
+      name: "USER"
     });
 
     const newUser = await this.userModel.create({
@@ -201,6 +207,77 @@ export class UsersService {
     const result = await this.userModel.updateOne({ _id }, {
       refresh_token: refreshToken
     });
+    return result;
+  }
+
+  // [POST] /auth/forgot-password
+  async forgotPassword(email: string) {
+    const exist = await this.userModel.findOne({
+      email: email,
+      isDeleted: false
+    })
+    if (!exist)
+      throw new BadRequestException("Tài khoản không tồn tại trong hê thống");
+
+    // xoá mã cũ
+    await this.forgotPasswordModel.deleteOne({ email: email });
+
+    const otp = generateRandomNumber(6);
+
+    // xứ lý gửi mã otp qua mail
+    const dataMail = {
+      email, otp,
+      name: exist.name,
+      template: "send-otp",
+      subject: `Mã OTP: ${otp}`
+    }
+    this.mailerService.sendOTP(dataMail);
+
+    const result = await this.forgotPasswordModel.create({
+      email,
+      otp
+    })
+    return {
+      email: result.email,
+      userId: exist._id
+    }
+  }
+
+  // [POST] /auth/confirm-code
+  async confirmCode(email: string, otp: string) {
+    const existCode = await this.forgotPasswordModel.findOne({
+      email,
+      otp
+    })
+    if (!existCode)
+      throw new BadRequestException("Mã không hợp lễ vui lòng kiểm tra lại");
+
+    return {
+      email: existCode.email
+    }
+  }
+
+  // [POST] /auth/resetPassword
+  async resetPassword(email: string, otp: string, password: string, confirmPassword: string) {
+    if (password !== confirmPassword)
+      throw new BadRequestException("password và confirmPassword không giống nhau");
+
+    const existOtp = await this.forgotPasswordModel.findOne({
+      email,
+      otp
+    });
+
+    if (!existOtp)
+      throw new BadRequestException("Vui lòng thực hiện thao tạc quên mật khẩu");
+
+    const hashPassword = hashPasswordHelper(password);
+    const result = await this.userModel.updateOne({
+      email,
+      isDeleted: false
+    }, {
+      password: hashPassword
+    });
+
     return result;
   }
 }

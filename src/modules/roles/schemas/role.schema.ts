@@ -8,7 +8,7 @@ export class Role {
     @Prop()
     name: string
 
-    @Prop({ type: [mongoose.Schema.Types.ObjectId] })
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Permission" })
     permissions: mongoose.Schema.Types.ObjectId[]
 
     @Prop()

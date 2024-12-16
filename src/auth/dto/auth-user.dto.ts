@@ -19,3 +19,33 @@ export class RegisterUser {
 
     address: string
 }
+
+export class CreateForgotPassword {
+    @IsNotEmpty({ message: "email không được để trống" })
+    @IsEmail({}, { message: "email không đúng định dạng" })
+    email: string
+}
+
+export class ConfirmCode {
+    @IsNotEmpty({ message: "email không được để trống" })
+    @IsEmail({}, { message: "email không đúng định dạng" })
+    email: string
+
+    @IsNotEmpty({ message: "otp không được để trống" })
+    otp: string
+}
+
+export class ResetPassword {
+    @IsNotEmpty({ message: "email không được để trống" })
+    @IsEmail({}, { message: "email không đúng định dạng" })
+    email: string
+
+    @IsNotEmpty({ message: "otp không được để trống" })
+    otp: string
+
+    @IsNotEmpty({ message: "password không được để trống" })
+    password: string
+
+    @IsNotEmpty({ message: "confirmPassword không được để trống" })
+    confirmPassword: string
+}

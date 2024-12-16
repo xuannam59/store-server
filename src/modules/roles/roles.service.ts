@@ -76,7 +76,7 @@ export class RolesService {
     const result = await this.roleModel.findOne({
       _id: id,
       isDeleted: false
-    });
+    }).populate({ path: "permissions", select: { name: 1, method: 1, aipPath: 1, module: 1 } });
 
     if (!result)
       throw new BadRequestException("Không tìm thấy Vai trò")
