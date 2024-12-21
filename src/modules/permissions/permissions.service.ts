@@ -12,15 +12,15 @@ import aqp from 'api-query-params';
 export class PermissionsService {
   constructor(@InjectModel(Permission.name) private permissionModel: Model<Permission>) { }
   async create(createPermissionDto: CreatePermissionDto, user: IUser) {
-    const { name, method, aipPath, module } = createPermissionDto;
+    const { name, method, apiPath, module } = createPermissionDto;
     const exist = await this.permissionModel.findOne({
       method: method,
-      aipPath: aipPath
+      apiPath: apiPath
     })
     if (exist) throw new BadRequestException("Permission này đã có trong hệ thống");
 
     const newPermission = await this.permissionModel.create({
-      name, method, aipPath, module,
+      name, method, apiPath, module,
       createdBy: {
         _id: user._id,
         email: user.email

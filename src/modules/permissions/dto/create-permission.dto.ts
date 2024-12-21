@@ -12,7 +12,7 @@ export class CreatePermissionDto {
 
     @IsNotEmpty()
     @IsString()
-    aipPath: string
+    apiPath: string
 
     @IsNotEmpty()
     @IsString()

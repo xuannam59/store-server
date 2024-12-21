@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { ResponseMessage, User } from '@/decorators/customize';
+import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.inerface';
 
 @Controller('products')
@@ -18,6 +18,7 @@ export class ProductsController {
     return this.productsService.create(createProductDto, user);
   }
 
+  @Public()
   @Get()
   @ResponseMessage("Fetch products with pagination")
   findAll(
@@ -28,6 +29,7 @@ export class ProductsController {
     return this.productsService.findAll(+current, +pageSize, qs);
   }
 
+  @Public()
   @Get(':id')
   @ResponseMessage("Fetch a product by id")
   findOne(@Param('id') id: string) {

@@ -12,6 +12,7 @@ import { CategoriesModule } from './modules/categories/categories.module';
 import { MailModule } from './modules/mail/mail.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -37,7 +38,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     CategoriesModule,
     MailModule,
     RolesModule,
-    PermissionsModule
+    PermissionsModule,
+    PromotionsModule
   ],
   controllers: [AppController],
   providers: [AppService],

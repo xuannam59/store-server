@@ -1,25 +1,40 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
 
-export type PermissionDocument = HydratedDocument<Permission>
+export type PromotionDocument = HydratedDocument<Promotion>
 
 @Schema({ timestamps: true })
-export class Permission {
-    @Prop()
-    name: string
+export class Promotion {
+    @Prop({ required: true })
+    title: string
+
+    @Prop({ required: true })
+    code: string
 
     @Prop()
-    method: string
+    value: number
 
     @Prop()
-    apiPath: string
+    descriptions: string
+
+    @Prop({ default: 100 })
+    quantityAvailable: number
+
+    @Prop({ default: "discount" })
+    type: string
+
+    @Prop({ required: true })
+    startAt: Date
 
     @Prop()
-    module: string
+    endAt: Date
+
+    @Prop()
+    image: string
 
     @Prop({
         type: String,
-        slug: "name",
+        slug: "title",
         unique: true
     })
     slug: string
@@ -49,4 +64,4 @@ export class Permission {
     deletedAt: Date;
 }
 
-export const PermissionSchema = SchemaFactory.createForClass(Permission);
+export const PromotionSchema = SchemaFactory.createForClass(Promotion);
