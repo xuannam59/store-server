@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
 import { InjectModel } from '@nestjs/mongoose';
 import { Promotion } from './schemas/promotion.schemas';

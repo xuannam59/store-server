@@ -22,6 +22,9 @@ export class Category {
     status: string;
 
     @Prop()
+    image: string
+
+    @Prop()
     description: string
 
     @Prop({ type: Object })

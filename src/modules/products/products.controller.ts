@@ -3,7 +3,7 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 
 @Controller('products')
 export class ProductsController {

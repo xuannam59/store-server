@@ -22,22 +22,16 @@ export class Product {
     discountPercentage: number
 
     @Prop()
-    quantity: number
-
-    @Prop()
-    thumbnail: string
-
-    @Prop({ type: Object })
-    slider: string[]
+    images: string[]
 
     @Prop()
     status: string
 
-    @Prop({ type: Number, default: 0 })
-    rate: number
-
     @Prop()
-    version: string[]
+    versions: {
+        color: string,
+        quantity: number
+    }[]
 
     @Prop({
         type: String,

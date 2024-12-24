@@ -3,7 +3,7 @@ import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { ResponseMessage, User } from '@/decorators/customize';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 
 @Controller('permissions')
 export class PermissionsController {

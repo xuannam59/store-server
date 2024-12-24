@@ -4,7 +4,7 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { ConfirmCode, CreateForgotPassword, RegisterUser, ResetPassword } from './dto/auth-user.dto';
 import { Request, Response } from 'express';
-import { IUser } from '@/modules/users/users.inerface';
+import { IUser } from '@/modules/users/users.interface';
 
 @Controller('auth')
 export class AuthController {

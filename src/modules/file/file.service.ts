@@ -16,4 +16,16 @@ export class FileService {
             throw new BadGatewayException("Error unable to upload file");
         }
     }
+
+    async uploadMultipleFiles(files: Express.Multer.File[]) {
+        try {
+            const data = await this.cloudinaryService.uploadMultipleFiles(files)
+            const result = data.map(item => item.secure_url)
+            return {
+                linkUrls: result
+            };
+        } catch (error) {
+            throw new BadGatewayException("Error unable to upload file");
+        }
+    }
 }

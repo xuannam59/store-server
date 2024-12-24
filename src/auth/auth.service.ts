@@ -1,4 +1,4 @@
-import { IUser } from '@/modules/users/users.inerface';
+import { IUser } from '@/modules/users/users.interface';
 import { UsersService } from '@/modules/users/users.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';

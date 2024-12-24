@@ -4,7 +4,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Category } from './schemas/category.schema';
 import mongoose, { Model } from 'mongoose';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 import aqp from 'api-query-params';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class CategoriesService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
 
   async create(createCategoryDto: CreateCategoryDto, user: IUser) {
-    const { title, description, status, parentId } = createCategoryDto;
+    const { title, description, status, parentId, image } = createCategoryDto;
 
     const exist = await this.categoryModel.findOne({
       title: title,
@@ -21,7 +21,7 @@ export class CategoriesService {
     if (exist)
       throw new BadRequestException("Danh mục này đã tồn tại");
     const category = await this.categoryModel.create({
-      title, description, status, parentId,
+      title, description, status, parentId, image,
       createdBy: {
         _id: user._id,
         email: user.email

@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import mongoose from "mongoose";
 
 
@@ -11,9 +11,15 @@ export class CreateCategoryDto {
     @IsString()
     status: string;
 
+    @IsOptional()
     @IsMongoId()
     parentId: mongoose.Schema.Types.ObjectId
 
+    @IsOptional()
     @IsString()
     description: string
+
+    @IsOptional()
+    @IsString()
+    image: string
 }

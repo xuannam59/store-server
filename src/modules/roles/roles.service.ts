@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Role } from './schemas/role.schema';
 import mongoose, { Model } from 'mongoose';

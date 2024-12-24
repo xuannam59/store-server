@@ -3,7 +3,7 @@ import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
 import { ResponseMessage, User } from '@/decorators/customize';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 
 @Controller('promotions')
 export class PromotionsController {

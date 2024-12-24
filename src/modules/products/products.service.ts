@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schemas/product.schema';
 import mongoose, { Model } from 'mongoose';
 import aqp from 'api-query-params';
-import { title } from 'process';
 
 @Injectable()
 export class ProductsService {
@@ -16,21 +15,19 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto, user: IUser) {
     const { title, description, price,
-      quantity, discountPercentage, thumbnail, categoryId,
-      status, slider } = createProductDto;
+      discountPercentage, categoryId,
+      status, images, versions } = createProductDto;
 
     const product = await this.productModel.create({
       title, description, price,
-      quantity, discountPercentage,
-      thumbnail, status, slider, categoryId,
+      discountPercentage,
+      images, status, versions, categoryId,
       createdBy: {
         _id: user._id,
         email: user.email
       }
     })
-    return {
-      _id: product._id
-    };
+    return createProductDto;
   }
 
   async findAll(current: number, pageSize: number, qs: string) {

@@ -3,7 +3,7 @@ import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ResponseMessage, User } from '@/decorators/customize';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 
 @Controller('roles')
 export class RolesController {

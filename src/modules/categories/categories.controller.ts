@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { IUser } from '../users/users.inerface';
+import { IUser } from '../users/users.interface';
 import { ResponseMessage, User } from '@/decorators/customize';
 
 @Controller('categories')
