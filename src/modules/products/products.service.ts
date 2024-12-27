@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schemas/product.schema';
 import mongoose, { Model } from 'mongoose';
 import aqp from 'api-query-params';
+import { use } from 'passport';
 
 @Injectable()
 export class ProductsService {
@@ -65,7 +66,7 @@ export class ProductsService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id product không hợp lệ")
 
     const result = await this.productModel.findOne({
       _id: id,
@@ -80,7 +81,7 @@ export class ProductsService {
 
   async update(id: string, updateProductDto: UpdateProductDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id product không hợp lệ")
 
     const result = await this.productModel.updateOne({
       _id: id,
@@ -98,7 +99,7 @@ export class ProductsService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id product không hợp lệ")
 
     const result = await this.productModel.updateOne({
       _id: id,
@@ -110,6 +111,19 @@ export class ProductsService {
         email: user.email
       }
     });
+    return result;
+  }
+
+  async removeMultiple(ids: string[], user: IUser) {
+    const result = await this.productModel.updateMany({ _id: { $in: ids } }, {
+      isDeleted: true,
+      deletedAt: new Date,
+      deletedBy: {
+        _id: user._id,
+        email: user.email
+      }
+    });
+
     return result;
   }
 }

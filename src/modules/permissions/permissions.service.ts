@@ -66,7 +66,7 @@ export class PermissionsService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id permission không hợp lệ")
 
     const result = await this.permissionModel.findOne({
       _id: id,
@@ -81,7 +81,7 @@ export class PermissionsService {
 
   async update(id: string, updatePermissionDto: UpdatePermissionDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id permission không hợp lệ")
 
     const result = await this.permissionModel.updateOne({
       _id: id,
@@ -99,7 +99,7 @@ export class PermissionsService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id permission không hợp lệ")
 
     const result = await this.permissionModel.updateOne({
       _id: id,

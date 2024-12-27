@@ -71,7 +71,7 @@ export class RolesService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id role không hợp lệ")
 
     const result = await this.roleModel.findOne({
       _id: id,
@@ -86,7 +86,7 @@ export class RolesService {
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id role không hợp lệ")
 
     const result = await this.roleModel.updateOne({
       _id: id,
@@ -104,7 +104,7 @@ export class RolesService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id role không hợp lệ")
 
     const result = await this.roleModel.updateOne({
       _id: id,

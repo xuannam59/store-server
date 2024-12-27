@@ -67,7 +67,7 @@ export class CategoriesService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id category không hợp lệ")
 
     const result = await this.categoryModel.findOne({
       _id: id,
@@ -82,7 +82,7 @@ export class CategoriesService {
 
   async update(id: string, updateCategoryDto: UpdateCategoryDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id category không hợp lệ")
 
     const result = await this.categoryModel.updateOne({
       _id: id,
@@ -99,7 +99,7 @@ export class CategoriesService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ")
+      throw new BadRequestException("id category không hợp lệ")
 
     const result = await this.categoryModel.updateOne({
       _id: id,

@@ -68,7 +68,7 @@ export class PromotionsService {
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("Id không hợp lệ");
+      throw new BadRequestException("id promotion không hợp lệ");
 
     const result = await this.promotionModel.findOne({
       _id: id,
@@ -82,7 +82,7 @@ export class PromotionsService {
 
   async update(id: string, updatePromotionDto: UpdatePromotionDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("Id không hợp lệ");
+      throw new BadRequestException("id promotion không hợp lệ");
 
     const result = await this.promotionModel.updateOne({
       _id: id
@@ -99,7 +99,7 @@ export class PromotionsService {
 
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("Id không hợp lệ");
+      throw new BadRequestException("id promotion không hợp lệ");
 
     const result = await this.promotionModel.updateOne({
       _id: id

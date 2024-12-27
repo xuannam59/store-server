@@ -95,7 +95,7 @@ export class UsersService {
   // [GET] /user/:id
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ");
+      throw new BadRequestException("id user không hợp lệ");
 
     const user = await this.userModel.findOne({
       _id: id,
@@ -110,7 +110,7 @@ export class UsersService {
   // [PATCH] /users/:id
   async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ");
+      throw new BadRequestException("id user không hợp lệ");
 
     const result = await this.userModel.updateOne(
       { _id: id },
@@ -128,7 +128,7 @@ export class UsersService {
   // [DELETE] /users/:id
   async remove(id: string, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id không hợp lệ");
+      throw new BadRequestException("id user không hợp lệ");
 
     const isExist = await this.userModel.findById(id);
     if (!isExist) {
