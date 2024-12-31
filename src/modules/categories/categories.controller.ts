@@ -3,7 +3,7 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { IUser } from '../users/users.interface';
-import { ResponseMessage, User } from '@/decorators/customize';
+import { Public, ResponseMessage, User } from '@/decorators/customize';
 
 @Controller('categories')
 export class CategoriesController {
@@ -18,16 +18,16 @@ export class CategoriesController {
     return this.categoriesService.create(createCategoryDto, user);
   }
 
+  @Public()
   @Get()
   @ResponseMessage("Fetch categories with pagination")
   findAll(
-    @Query("current") current: string,
-    @Query("pageSize") pageSize: string,
     @Query() qs: string
   ) {
-    return this.categoriesService.findAll(+current, +pageSize, qs);
+    return this.categoriesService.findAll(qs);
   }
 
+  @Public()
   @Get(':id')
   @ResponseMessage("fetch a category by id")
   findOne(@Param('id') id: string) {

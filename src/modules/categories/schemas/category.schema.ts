@@ -27,6 +27,9 @@ export class Category {
     @Prop()
     description: string
 
+    @Prop()
+    displayMode: boolean;
+
     @Prop({ type: Object })
     createdBy: {
         _id: mongoose.Schema.Types.ObjectId,

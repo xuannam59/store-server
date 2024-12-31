@@ -36,6 +36,22 @@ export class CreateProductDto {
     @IsMongoId()
     categoryId: mongoose.Schema.Types.ObjectId
 
+    @IsOptional()
+    @IsString()
+    chip: string
+
+    @IsOptional()
+    @IsString()
+    ram: string
+
+    @IsOptional()
+    @IsString()
+    ssd: string
+
+    @IsOptional()
+    @IsString()
+    gpu: string
+
     @IsNotEmpty()
     @IsArray()
     @ValidateNested({ each: true })

@@ -30,10 +30,10 @@ export class ProductsController {
   }
 
   @Public()
-  @Get(':id')
-  @ResponseMessage("Fetch a product by id")
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(id);
+  @Get(':idOrSlug')
+  @ResponseMessage("Fetch a product by slug")
+  findOne(@Param('idOrSlug') idOrSlug: string) {
+    return this.productsService.findOne(idOrSlug);
   }
 
   @Patch(':id')
@@ -47,7 +47,7 @@ export class ProductsController {
   }
 
   @Delete("delete-multiple")
-  @ResponseMessage("")
+  @ResponseMessage("Delete multiple products")
   removeMultiple(
     @Body() ids: string[],
     @User() user: IUser

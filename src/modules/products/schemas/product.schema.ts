@@ -25,6 +25,18 @@ export class Product {
     images: string[]
 
     @Prop()
+    chip: string
+
+    @Prop()
+    ram: string
+
+    @Prop()
+    ssd: string
+
+    @Prop()
+    gpu: string
+
+    @Prop()
     status: string
 
     @Prop()
@@ -32,6 +44,9 @@ export class Product {
         color: string,
         quantity: number
     }[]
+
+    @Prop({ type: Number, default: 0 })
+    sales: number
 
     @Prop({
         type: String,

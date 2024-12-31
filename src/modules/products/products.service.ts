@@ -6,7 +6,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './schemas/product.schema';
 import mongoose, { Model } from 'mongoose';
 import aqp from 'api-query-params';
-import { use } from 'passport';
 
 @Injectable()
 export class ProductsService {
@@ -17,28 +16,32 @@ export class ProductsService {
   async create(createProductDto: CreateProductDto, user: IUser) {
     const { title, description, price,
       discountPercentage, categoryId,
-      status, images, versions } = createProductDto;
+      status, images, versions,
+      chip, ram, ssd, gpu } = createProductDto;
 
     const product = await this.productModel.create({
       title, description, price,
       discountPercentage,
       images, status, versions, categoryId,
+      chip, ram, ssd,
       createdBy: {
         _id: user._id,
         email: user.email
       }
     })
-    return createProductDto;
+    return product;
   }
 
   async findAll(current: number, pageSize: number, qs: string) {
     const { filter, sort, population, projection } = aqp(qs)
     delete filter.current
     delete filter.pageSize
-    filter.isDeleted = false;
+    if (!filter.isDeleted) {
+      filter.isDeleted = false;
+    }
 
-    let currentDefault = current ?? 1;
-    let limitDefault = pageSize ?? 10;
+    let currentDefault = current ? current : 1;
+    let limitDefault = pageSize ? pageSize : 10;
 
     const totalItems = await this.productModel.countDocuments(filter);
     const totalPage = Math.ceil(totalItems / limitDefault);
@@ -64,15 +67,19 @@ export class ProductsService {
     };
   }
 
-  async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id product không hợp lệ")
-
-    const result = await this.productModel.findOne({
-      _id: id,
-      isDeleted: false
-    });
-
+  async findOne(idOrSlug: string) {
+    let result;
+    if (mongoose.Types.ObjectId.isValid(idOrSlug)) {
+      result = await this.productModel.findOne({
+        _id: idOrSlug,
+        isDeleted: false
+      });
+    } else {
+      result = await this.productModel.findOne({
+        slug: idOrSlug,
+        isDeleted: false
+      });
+    }
     if (!result)
       throw new BadRequestException("Không tìm thấy sản phẩm")
 

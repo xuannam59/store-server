@@ -12,7 +12,7 @@ export class CategoriesService {
   constructor(@InjectModel(Category.name) private categoryModel: Model<Category>) { }
 
   async create(createCategoryDto: CreateCategoryDto, user: IUser) {
-    const { title, description, status, parentId, image } = createCategoryDto;
+    const { title, description, status, parentId, image, displayMode } = createCategoryDto;
 
     const exist = await this.categoryModel.findOne({
       title: title,
@@ -21,7 +21,7 @@ export class CategoriesService {
     if (exist)
       throw new BadRequestException("Danh mục này đã tồn tại");
     const category = await this.categoryModel.create({
-      title, description, status, parentId, image,
+      title, description, status, parentId, image, displayMode,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -32,34 +32,20 @@ export class CategoriesService {
     };
   }
 
-  async findAll(current: number, pageSize: number, qs) {
-    const { filter, sort, population, projection } = aqp(qs)
-    delete filter.current
-    delete filter.pageSize
+  async findAll(qs: string) {
+    const { filter, sort } = aqp(qs)
     filter.isDeleted = false;
 
-    let currentDefault = current ?? 1;
-    let limitDefault = pageSize ?? 10;
-
     const totalItems = await this.categoryModel.countDocuments(filter);
-    const totalPage = Math.ceil(totalItems / limitDefault);
-
-    let skip = (currentDefault - 1) * limitDefault;
 
     const result = await this.categoryModel
       .find(filter)
-      .skip(skip)
-      .limit(limitDefault)
-      .sort(sort as any)
       .populate({ path: "parentId", select: { title: 1 } })
       .exec();
 
     return {
       meta: {
-        current: currentDefault,
-        pageSize: limitDefault,
-        totalItems: totalItems,
-        pages: totalPage
+        totalItems: totalItems
       },
       result: result
     };

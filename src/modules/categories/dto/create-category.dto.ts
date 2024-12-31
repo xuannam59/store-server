@@ -1,4 +1,4 @@
-import { IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsMongoId, IsNotEmpty, IsOptional, IsString } from "class-validator";
 import mongoose from "mongoose";
 
 
@@ -22,4 +22,8 @@ export class CreateCategoryDto {
     @IsOptional()
     @IsString()
     image: string
+
+    @IsOptional()
+    @IsBoolean()
+    displayMode: boolean
 }
