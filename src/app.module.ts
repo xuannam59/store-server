@@ -13,6 +13,7 @@ import { MailModule } from './modules/mail/mail.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { PermissionsModule } from './modules/permissions/permissions.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
+import { CartsModule } from './modules/carts/carts.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -39,7 +40,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     MailModule,
     RolesModule,
     PermissionsModule,
-    PromotionsModule
+    PromotionsModule,
+    CartsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -8,12 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { UsersModule } from '@/modules/users/users.module';
 import { JwtStrategy } from './passport/jwt.strategy';
 import { RolesModule } from '@/modules/roles/roles.module';
+import { CartsModule } from '@/modules/carts/carts.module';
 
 @Module({
   imports: [
     UsersModule,
     RolesModule,
     PassportModule,
+    CartsModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),

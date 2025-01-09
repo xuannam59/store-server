@@ -27,7 +27,8 @@ export class AuthController {
     @Req() req,
     @Res({ passthrough: true }) res: Response
   ) {
-    return this.authService.login(req.user, res);
+    const cartId = req.cookies["cart_id"]
+    return this.authService.login(req.user, res, cartId);
   }
 
   // [POST] /auth/logout
@@ -44,9 +45,10 @@ export class AuthController {
   @ResponseMessage("Get account")
   @Get('account')
   getAccount(
-    @User() user: IUser
+    @User() user: IUser,
+    @Res({ passthrough: true }) res: Response
   ) {
-    return this.authService.getAccount(user)
+    return this.authService.getAccount(user, res)
   }
 
   // [GET] /auth/refresh-token

@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
 import { RolesService } from '@/modules/roles/roles.service';
+import { CartsService } from '@/modules/carts/carts.service';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,8 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
-    private roleService: RolesService
+    private roleService: RolesService,
+    private cartService: CartsService
   ) { }
 
   async validateUser(username: string, password: string): Promise<any> {
@@ -39,7 +41,7 @@ export class AuthService {
   }
 
   // [POST] /auth/login
-  async login(user: IUser, res: Response) {
+  async login(user: IUser, res: Response, cartId: string) {
     const { _id, name, email, role, avatar } = user;
     const payload = {
       sub: "token access",
@@ -64,6 +66,9 @@ export class AuthService {
       maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
     });
 
+
+    await this.cartService.checkAccountCart(_id, cartId, res);
+
     return {
       access_token: access_token,
       user: {
@@ -81,6 +86,7 @@ export class AuthService {
   async logout(res: Response, user: IUser) {
     await this.usersService.updateUserRefresh("", user._id);
     res.clearCookie("refresh_token");
+    res.clearCookie("cart_id");
     return "Ok";
   }
 
@@ -102,7 +108,7 @@ export class AuthService {
   }
 
   // [GET] /auth/account
-  async getAccount(user: IUser) {
+  async getAccount(user: IUser, res: Response) {
     const { _id, name, email, role, avatar } = user;
     const userRole = user.role as unknown as { _id: string, name: string }
     const temp = await this.roleService.findOne(userRole._id);
@@ -147,6 +153,12 @@ export class AuthService {
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true, // only the server can get it
         maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
+      });
+
+      const cartId = await this.cartService.findOne(_id.toString());
+      res.cookie("cart_id", cartId, {
+        httpOnly: true, // only the server can get it
+        maxAge: ms(this.configService.get<string>("CART_EXPIRE"))
       });
 
       return {

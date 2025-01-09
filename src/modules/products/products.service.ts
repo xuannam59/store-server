@@ -73,12 +73,12 @@ export class ProductsService {
       result = await this.productModel.findOne({
         _id: idOrSlug,
         isDeleted: false
-      });
+      }).populate({ path: "categoryId", select: { title: 1 } });
     } else {
       result = await this.productModel.findOne({
         slug: idOrSlug,
         isDeleted: false
-      });
+      }).populate({ path: "categoryId", select: { title: 1 } });
     }
     if (!result)
       throw new BadRequestException("Không tìm thấy sản phẩm")
