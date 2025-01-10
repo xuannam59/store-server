@@ -53,19 +53,18 @@ export class AuthService {
     };
 
     const access_token = this.jwtService.sign(payload);
-
     const refresh_token = this.createRefreshToken(payload);
 
-    await this.usersService.updateUserRefresh(refresh_token, _id);
-
     const userRole = user.role as unknown as { _id: string, name: string }
-    const temp = await this.roleService.findOne(userRole._id);
+    const [_, temp] = await Promise.all([
+      this.usersService.updateUserRefresh(refresh_token, _id),
+      this.roleService.findOne(userRole._id)
+    ]);
 
     res.cookie("refresh_token", refresh_token, {
       httpOnly: true, // only the server can get it
       maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
     });
-
 
     await this.cartService.checkAccountCart(_id, cartId, res);
 
@@ -129,7 +128,7 @@ export class AuthService {
         secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET")
       });
       const user = await this.usersService.findUserByToken(refreshToken);
-
+      console.log(user)
       if (!user)
         throw new BadRequestException("Refresh token không hợp lệ . Vui lòng login lại");
 
@@ -149,11 +148,11 @@ export class AuthService {
       const userRole = user.role as unknown as { _id: string, name: string }
       const temp = await this.roleService.findOne(userRole._id);
 
-      await this.usersService.updateUserRefresh(refresh_token, _id.toString());
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true, // only the server can get it
         maxAge: ms(this.configService.get<string>("JWT_REFRESH_EXPIRE"))
       });
+      await this.usersService.updateUserRefresh(refresh_token, _id.toString());
 
       const cartId = await this.cartService.findOne(_id.toString());
       res.cookie("cart_id", cartId, {

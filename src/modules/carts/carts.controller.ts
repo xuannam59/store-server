@@ -21,12 +21,16 @@ export class CartsController {
     return this.cartsService.getCart(cartId, res, data.userId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCartDto: UpdateCartDto) {
-    const { productList } = updateCartDto
-    console.log(productList.productId);
-    return this.cartsService.update(id, updateCartDto);
+  @Public()
+  @ResponseMessage("add product")
+  @Patch("add-product/:id")
+  addProduct(
+    @Param("id") id: string,
+    @Body() updateCartDto: UpdateCartDto,
+  ) {
+    return this.cartsService.addProduct(id, updateCartDto)
   }
+
 
   @Delete(':id')
   remove(@Param('id') id: string) {

@@ -1,8 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsArray, IsNotEmpty, IsNumber, IsObject, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
-class Product {
+export class UpdateCartDto {
     @IsNotEmpty()
     productId: string;
 
@@ -12,12 +10,4 @@ class Product {
     @IsNotEmpty()
     @IsNumber()
     quantity: number;
-}
-
-export class UpdateCartDto {
-
-    @IsObject()
-    @ValidateNested({ each: true })
-    @Type(() => Product)
-    productList: Product
 }
