@@ -128,7 +128,6 @@ export class AuthService {
         secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET")
       });
       const user = await this.usersService.findUserByToken(refreshToken);
-      console.log(user)
       if (!user)
         throw new BadRequestException("Refresh token không hợp lệ . Vui lòng login lại");
 

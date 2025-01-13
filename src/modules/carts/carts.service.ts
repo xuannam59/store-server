@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './schemas/cart.schema';
-import { Model, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 import { Response } from 'express';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
@@ -95,16 +95,16 @@ export class CartsService {
       throw new BadRequestException("Cart or Product not found");
     }
 
-    const quantityProduct = product.versions.find(item => item.color === color).quantity;
+    const productQuantity = product.versions.find(item => item.color === color).quantity;
 
     const productExist = cart.productList.find(item =>
       item.productId.toString() === productId
       && item.color === color);
-    if (quantityProduct <= 0) {
+    if (productQuantity <= 0) {
       throw new BadRequestException("this product is out of stock")
     }
     if (productExist) {
-      const newQuantity = Math.min(productExist.quantity + quantity, quantityProduct);
+      const newQuantity = Math.min(productExist.quantity + quantity, productQuantity);
       if (newQuantity !== productExist.quantity) {
         await this.cartModel.updateOne({
           _id: id,
@@ -114,12 +114,9 @@ export class CartsService {
             "productList.$.quantity": newQuantity
           }
         });
-        if (newQuantity === quantityProduct) {
-          throw new BadRequestException("You have added maximum products");
-        }
       }
     } else {
-      if (quantityProduct > 0) {
+      if (productQuantity > 0) {
         await this.cartModel.updateOne({
           _id: id
         }, {
@@ -127,7 +124,7 @@ export class CartsService {
             "productList": {
               $each: [{
                 productId: productId,
-                quantity: Math.min(quantity, quantityProduct),
+                quantity: Math.min(quantity, productQuantity),
                 color: color
               }],
               $position: 0
@@ -136,10 +133,40 @@ export class CartsService {
         })
       }
     }
-    return "Added product to cart successfully"
+    const result = await this.cartModel.findOne({ _id: id })
+      .populate({
+        path: "productList.productId",
+        select: "title price categoryId discountPercentage images versions slug",
+      });
+    return result;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cart`;
+  async removeProduct(cartId: string, productId: string, color: string) {
+    if (!Types.ObjectId.isValid(productId))
+      throw new BadRequestException("Product id is incorrect!");
+    if (!color)
+      throw new BadRequestException("Color is incorrect!");
+
+    const productExist = await this.cartModel.findOne({
+      _id: cartId,
+      "productList.productId": productId,
+      "productList.color": color
+    });
+
+    if (!productExist) {
+      throw new NotFoundException("Product not found in cart!");
+    }
+
+    await this.cartModel.updateOne(
+      { _id: cartId },
+      { $pull: { productList: { productId: productId, color: color } } }
+    );
+
+    const result = await this.cartModel.findOne({ _id: cartId })
+      .populate({
+        path: "productList.productId",
+        select: "title price categoryId discountPercentage images versions slug",
+      });
+    return result;
   }
 }
