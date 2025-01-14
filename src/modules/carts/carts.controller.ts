@@ -34,13 +34,25 @@ export class CartsController {
 
   @Public()
   @ResponseMessage("remove product")
-  @Delete('remove-product')
+  @Patch('remove-product')
   removeProduct(
-    @Query('id') id: string,
-    @Query('color') color: string,
+    @Body('id') id: string,
     @Req() req: Request
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.removeProduct(cartId, id, color);
+    return this.cartsService.removeProduct(cartId, id);
+  }
+
+  @Public()
+  @ResponseMessage("")
+  @Patch("change-quantity")
+  changeProductType(
+    @Body("_id") _id: string,
+    @Body("value") value: number | string,
+    @Body("type") type: string,
+    @Req() req: Request
+  ) {
+    const cartId = req.cookies["cart_id"];
+    return this.cartsService.changProductType(cartId, _id, value, type);
   }
 }

@@ -83,11 +83,11 @@ export class CartsService {
     return userCart._id;
   }
 
-  async addProduct(id: string, updateCartDto: UpdateCartDto) {
+  async addProduct(cartId: string, updateCartDto: UpdateCartDto) {
     const { productId, quantity, color } = updateCartDto;
 
     const [cart, product] = await Promise.all([
-      this.cartModel.findOne({ _id: id }),
+      this.cartModel.findOne({ _id: cartId }),
       this.productModel.findById(productId)
     ]);
 
@@ -105,52 +105,49 @@ export class CartsService {
     }
     if (productExist) {
       const newQuantity = Math.min(productExist.quantity + quantity, productQuantity);
-      if (newQuantity !== productExist.quantity) {
-        await this.cartModel.updateOne({
-          _id: id,
-          "productList.productId": productId
-        }, {
-          $set: {
-            "productList.$.quantity": newQuantity
-          }
+      const result = await this.cartModel.findOneAndUpdate({
+        _id: cartId,
+        "productList.productId": productId
+      },
+        { $set: { "productList.$.quantity": newQuantity } },
+        { new: true }).populate({
+          path: "productList.productId",
+          select: "title price categoryId discountPercentage images versions slug",
         });
-      }
+      return result;
     } else {
       if (productQuantity > 0) {
-        await this.cartModel.updateOne({
-          _id: id
-        }, {
-          $push: {
-            "productList": {
-              $each: [{
-                productId: productId,
-                quantity: Math.min(quantity, productQuantity),
-                color: color
-              }],
-              $position: 0
+        const result = await this.cartModel.findOneAndUpdate(
+          { _id: cartId },
+          {
+            $push: {
+              "productList": {
+                $each: [{
+                  productId: productId,
+                  quantity: Math.min(quantity, productQuantity),
+                  color: color
+                }],
+                $position: 0
+              }
             }
-          }
-        })
+          },
+          { new: true }).populate(
+            {
+              path: "productList.productId",
+              select: "title price categoryId discountPercentage images versions slug",
+            });
+        return result
       }
     }
-    const result = await this.cartModel.findOne({ _id: id })
-      .populate({
-        path: "productList.productId",
-        select: "title price categoryId discountPercentage images versions slug",
-      });
-    return result;
   }
 
-  async removeProduct(cartId: string, productId: string, color: string) {
+  async removeProduct(cartId: string, productId: string) {
     if (!Types.ObjectId.isValid(productId))
       throw new BadRequestException("Product id is incorrect!");
-    if (!color)
-      throw new BadRequestException("Color is incorrect!");
 
     const productExist = await this.cartModel.findOne({
       _id: cartId,
-      "productList.productId": productId,
-      "productList.color": color
+      "productList._id": productId,
     });
 
     if (!productExist) {
@@ -159,7 +156,7 @@ export class CartsService {
 
     await this.cartModel.updateOne(
       { _id: cartId },
-      { $pull: { productList: { productId: productId, color: color } } }
+      { $pull: { productList: { _id: productId } } }
     );
 
     const result = await this.cartModel.findOne({ _id: cartId })
@@ -168,5 +165,20 @@ export class CartsService {
         select: "title price categoryId discountPercentage images versions slug",
       });
     return result;
+  }
+
+  async changProductType(cartId: string, productId: string, value: number | string, type: string) {
+    const updateField = type === "quantity" ? "productList.$.quantity" : "productList.$.color";
+
+    const cartUser = await this.cartModel.findOneAndUpdate(
+      { _id: cartId, "productList._id": productId },
+      { $set: { [updateField]: value } },
+      { new: true }
+    ).populate({
+      path: "productList.productId",
+      select: "title price categoryId discountPercentage images versions slug",
+    });
+
+    return cartUser;
   }
 }
