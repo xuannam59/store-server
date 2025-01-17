@@ -2,17 +2,20 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cart } from './schemas/cart.schema';
-import mongoose, { Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Response } from 'express';
 import ms from 'ms';
 import { ConfigService } from '@nestjs/config';
 import { Product } from '../products/schemas/product.schema';
+import { CreateUserAddressDto } from './dto/create-user-address';
+import { UserAddress } from './schemas/user-address.schema';
 
 @Injectable()
 export class CartsService {
   constructor(
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(UserAddress.name) private userAddressModel: Model<UserAddress>,
     private configService: ConfigService
 
   ) { }
@@ -28,10 +31,15 @@ export class CartsService {
         }
       ],
     })
-      .populate({
-        path: "productList.productId",
-        select: "title price categoryId discountPercentage images versions slug",
-      });
+      .populate([
+        {
+          path: "productList.productId",
+          select: "title price categoryId discountPercentage images versions slug",
+        },
+        {
+          path: "userAddress",
+        }
+      ]);
     if (!cart) {
       const newCart = await this.cartModel.create({});
 
@@ -110,10 +118,16 @@ export class CartsService {
         "productList.productId": productId
       },
         { $set: { "productList.$.quantity": newQuantity } },
-        { new: true }).populate({
-          path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug",
-        });
+        { new: true })
+        .populate([
+          {
+            path: "productList.productId",
+            select: "title price categoryId discountPercentage images versions slug",
+          },
+          {
+            path: "userAddress",
+          }
+        ]);
       return result;
     } else {
       if (productQuantity > 0) {
@@ -131,11 +145,15 @@ export class CartsService {
               }
             }
           },
-          { new: true }).populate(
+          { new: true }).populate([
             {
               path: "productList.productId",
               select: "title price categoryId discountPercentage images versions slug",
-            });
+            },
+            {
+              path: "userAddress",
+            }
+          ]);
         return result
       }
     }
@@ -160,10 +178,15 @@ export class CartsService {
     );
 
     const result = await this.cartModel.findOne({ _id: cartId })
-      .populate({
-        path: "productList.productId",
-        select: "title price categoryId discountPercentage images versions slug",
-      });
+      .populate([
+        {
+          path: "productList.productId",
+          select: "title price categoryId discountPercentage images versions slug",
+        },
+        {
+          path: "userAddress",
+        }
+      ]);
     return result;
   }
 
@@ -174,11 +197,46 @@ export class CartsService {
       { _id: cartId, "productList._id": productId },
       { $set: { [updateField]: value } },
       { new: true }
-    ).populate({
-      path: "productList.productId",
-      select: "title price categoryId discountPercentage images versions slug",
-    });
+    ).populate([
+      {
+        path: "productList.productId",
+        select: "title price categoryId discountPercentage images versions slug",
+      },
+      {
+        path: "userAddress",
+      }
+    ]);
 
     return cartUser;
+  }
+
+  async addUserAddress(cartId: string, createUserAddress: CreateUserAddressDto) {
+    const { name, phoneNumber, homeNo, province, district, ward, isDefault } = createUserAddress
+    const cart = await this.cartModel.findById(cartId);
+    if (!cart)
+      throw new BadRequestException("Cart is unavailable");
+    if (cart.userAddress.length === 2)
+      throw new BadRequestException("Add up to 2 address");
+    if (isDefault && cart.userAddress.length > 0) {
+      await this.userAddressModel.updateOne({
+        _id: cart.userAddress[0]
+      }, {
+        isDefault: false
+      })
+    }
+    const newUserAddress = await this.userAddressModel.create({
+      name, phoneNumber, homeNo,
+      province, district, ward, isDefault
+    });
+    await this.cartModel.findOneAndUpdate({ _id: cartId },
+      {
+        $push: {
+          userAddress: newUserAddress._id
+        }
+      },
+      { new: true }
+    );
+
+    return newUserAddress;
   }
 }

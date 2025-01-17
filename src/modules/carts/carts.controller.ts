@@ -4,6 +4,7 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { Request, Response } from 'express';
 import { IUser } from '../users/users.interface';
+import { CreateUserAddressDto } from './dto/create-user-address';
 
 @Controller('carts')
 export class CartsController {
@@ -44,8 +45,8 @@ export class CartsController {
   }
 
   @Public()
-  @ResponseMessage("")
-  @Patch("change-quantity")
+  @ResponseMessage("change product type")
+  @Patch("change-product-type")
   changeProductType(
     @Body("_id") _id: string,
     @Body("value") value: number | string,
@@ -54,5 +55,16 @@ export class CartsController {
   ) {
     const cartId = req.cookies["cart_id"];
     return this.cartsService.changProductType(cartId, _id, value, type);
+  }
+
+  @Public()
+  @ResponseMessage("")
+  @Post("add-user-address")
+  addNewAddress(
+    @Body() createUserAddress: CreateUserAddressDto,
+    @Req() req: Request
+  ) {
+    const cartId = req.cookies["cart_id"];
+    return this.cartsService.addUserAddress(cartId, createUserAddress);
   }
 }
