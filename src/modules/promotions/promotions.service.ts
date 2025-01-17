@@ -6,6 +6,7 @@ import aqp from 'api-query-params';
 import { InjectModel } from '@nestjs/mongoose';
 import { Promotion } from './schemas/promotion.schemas';
 import mongoose, { Model } from 'mongoose';
+import { VND } from '@/helpers/handleCurrency';
 
 @Injectable()
 export class PromotionsService {
@@ -16,14 +17,14 @@ export class PromotionsService {
     const {
       title, code, descriptions,
       quantityAvailable, startAt, endAt,
-      type, value, image
+      type, value, image, maxValue, minValue,
     } = createPromotionDto
     if (endAt < startAt)
       throw new BadRequestException("the end date must be greater than the start date");
     const result = await this.promotionModel.create({
       title, code, descriptions,
       quantityAvailable, startAt, endAt,
-      type, value, image,
+      type, value, image, maxValue, minValue,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -66,18 +67,27 @@ export class PromotionsService {
     };
   }
 
-  async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id))
-      throw new BadRequestException("id promotion không hợp lệ");
+  async checkDiscountCode(code: string, totalAmount: number) {
+    const codeExist = await this.promotionModel.findOne({ code });
 
-    const result = await this.promotionModel.findOne({
-      _id: id,
-    });
+    if (!codeExist)
+      throw new BadRequestException("code is incorrect");
 
-    if (!result)
-      throw new BadRequestException("KhÔng tìm thấy sản phẩm");
+    if (codeExist.quantityAvailable <= 0)
+      throw new BadRequestException("code not available");
 
-    return result;
+    const now = Date.now();
+
+    if (codeExist.startAt.getTime() > now)
+      throw new BadRequestException("code not available");
+
+    if (codeExist.endAt && codeExist.endAt.getTime() < now)
+      throw new BadRequestException("code expired");
+
+    if (totalAmount < codeExist.minValue)
+      throw new BadRequestException(`Order value must be greater than ${VND.format(codeExist.minValue)}`);
+
+    return codeExist;
   }
 
   async update(id: string, updatePromotionDto: UpdatePromotionDto, user: IUser) {

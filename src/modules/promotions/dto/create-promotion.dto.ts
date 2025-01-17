@@ -13,6 +13,14 @@ export class CreatePromotionDto {
     @IsNumber()
     value: number
 
+    @IsOptional()
+    @IsNumber()
+    maxValue: number
+
+    @IsOptional()
+    @IsNumber()
+    minValue: number
+
     @IsString()
     @IsOptional()
     descriptions: string
@@ -28,6 +36,7 @@ export class CreatePromotionDto {
     @IsNotEmpty()
     startAt: Date
 
+    @IsOptional()
     @IsNotEmpty()
     endAt: Date
 

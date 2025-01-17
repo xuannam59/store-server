@@ -17,6 +17,12 @@ export class Promotion {
     @Prop()
     descriptions: string
 
+    @Prop()
+    maxValue: number
+
+    @Prop({ type: Number, default: 0 })
+    minValue: number
+
     @Prop({ default: 100 })
     quantityAvailable: number
 

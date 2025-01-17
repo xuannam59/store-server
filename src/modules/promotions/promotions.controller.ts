@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
-import { ResponseMessage, User } from '@/decorators/customize';
+import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
 
 @Controller('promotions')
@@ -28,10 +28,14 @@ export class PromotionsController {
     return this.promotionsService.findAll(+current, +pageSize, qs);
   }
 
-  @Get(':id')
+  @Public()
+  @Get(':code')
   @ResponseMessage("Fetch a promotion by id")
-  findOne(@Param('id') id: string) {
-    return this.promotionsService.findOne(id);
+  findOne(
+    @Param('code') code: string,
+    @Query("totalAmount") totalAmount: number
+  ) {
+    return this.promotionsService.checkDiscountCode(code, totalAmount);
   }
 
   @Patch(':id')
