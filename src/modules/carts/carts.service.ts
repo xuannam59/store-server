@@ -239,4 +239,48 @@ export class CartsService {
 
     return newUserAddress;
   }
+
+  async deleteUserAddress(cartId: string, addressId: string) {
+    const addressObjectId = new Types.ObjectId(addressId);
+    const [cart, userAddress] = await Promise.all([
+      this.cartModel.findById(cartId),
+      this.userAddressModel.findById(addressObjectId)
+    ])
+    if (!cart)
+      throw new BadRequestException("Cart is unavailable");
+
+    if (!userAddress)
+      throw new BadRequestException("User address is unavailable");
+
+    if (userAddress.isDefault) {
+      const newDefaultAddress = cart.userAddress.find(item => item.toString() !== addressId);
+
+      if (newDefaultAddress) {
+        await this.userAddressModel.updateOne(
+          { _id: newDefaultAddress },
+          { isDefault: true }
+        );
+      }
+    }
+
+    await this.userAddressModel.deleteOne({ _id: addressObjectId });
+
+    const updatedCart = await this.cartModel
+      .findOneAndUpdate(
+        { _id: cartId },
+        { $pull: { userAddress: addressObjectId } },
+        { new: true }
+      )
+      .populate([
+        {
+          path: "productList.productId",
+          select: "title price categoryId discountPercentage images versions slug",
+        },
+        {
+          path: "userAddress",
+        }
+      ]);
+
+    return updatedCart;
+  }
 }

@@ -67,4 +67,16 @@ export class CartsController {
     const cartId = req.cookies["cart_id"];
     return this.cartsService.addUserAddress(cartId, createUserAddress);
   }
+
+  @Public()
+  @ResponseMessage("")
+  @Delete("delete-user-address/:id")
+  deleteAddress(
+    @Param("id") id: string,
+    @Req() req: Request
+  ) {
+    const cartId = req.cookies["cart_id"];
+    return this.cartsService.deleteUserAddress(cartId, id);
+  }
+
 }
