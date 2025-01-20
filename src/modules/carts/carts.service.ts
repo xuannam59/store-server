@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { Product } from '../products/schemas/product.schema';
 import { CreateUserAddressDto } from './dto/create-user-address';
 import { UserAddress } from './schemas/user-address.schema';
+import { UpdateUserAddressDto } from './dto/update-user-address';
 
 @Injectable()
 export class CartsService {
@@ -228,16 +229,54 @@ export class CartsService {
       name, phoneNumber, homeNo,
       province, district, ward, isDefault
     });
-    await this.cartModel.findOneAndUpdate({ _id: cartId },
-      {
-        $push: {
-          userAddress: newUserAddress._id
-        }
-      },
+
+    const result = await this.cartModel.findOneAndUpdate({ _id: cartId },
+      { $push: { userAddress: newUserAddress._id } },
       { new: true }
     );
 
-    return newUserAddress;
+    return result;
+  }
+
+  async updateUserAddress(cartId: string, addressId: string, updateUserAddress: UpdateUserAddressDto) {
+    const { name, phoneNumber, homeNo, province, district, ward, isDefault } = updateUserAddress;
+    const [cart, userAddress] = await Promise.all([
+      this.cartModel.findById(cartId),
+      this.userAddressModel.findById(addressId)
+    ]);
+
+    if (!cart || !userAddress)
+      throw new BadRequestException("Cart or user address is unavailable");
+
+    if (userAddress.isDefault !== isDefault) {
+      const newDefaultAddress = cart.userAddress.find(item => item.toString() !== addressId);
+      if (newDefaultAddress) {
+        await this.userAddressModel.updateOne(
+          { _id: newDefaultAddress },
+          { isDefault: !isDefault }
+        );
+      } else {
+        throw new BadRequestException("This Address must be the default");
+      }
+    }
+
+    await this.userAddressModel
+      .findOneAndUpdate(
+        { _id: addressId },
+        { name, phoneNumber, homeNo, province, district, ward, isDefault },
+      )
+    const result = await this.cartModel
+      .findById(cartId)
+      .populate([
+        {
+          path: "productList.productId",
+          select: "title price categoryId discountPercentage images versions slug",
+        },
+        {
+          path: "userAddress",
+        }
+      ]);
+    return result;
   }
 
   async deleteUserAddress(cartId: string, addressId: string) {
@@ -246,11 +285,8 @@ export class CartsService {
       this.cartModel.findById(cartId),
       this.userAddressModel.findById(addressObjectId)
     ])
-    if (!cart)
-      throw new BadRequestException("Cart is unavailable");
-
-    if (!userAddress)
-      throw new BadRequestException("User address is unavailable");
+    if (!cart || !userAddress)
+      throw new BadRequestException("Cart or user address is unavailable");
 
     if (userAddress.isDefault) {
       const newDefaultAddress = cart.userAddress.find(item => item.toString() !== addressId);

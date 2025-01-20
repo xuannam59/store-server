@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Req, Query } from '@nestjs/common';
 import { CartsService } from './carts.service';
 import { UpdateCartDto } from './dto/update-cart.dto';
-import { Public, ResponseMessage, User } from '@/decorators/customize';
+import { Public, ResponseMessage } from '@/decorators/customize';
 import { Request, Response } from 'express';
-import { IUser } from '../users/users.interface';
 import { CreateUserAddressDto } from './dto/create-user-address';
+import { UpdateUserAddressDto } from './dto/update-user-address';
 
 @Controller('carts')
 export class CartsController {
@@ -29,32 +29,32 @@ export class CartsController {
     @Body() updateCartDto: UpdateCartDto,
     @Req() req: Request
   ) {
-    const id = req.cookies["cart_id"];
-    return this.cartsService.addProduct(id, updateCartDto)
+    const cartId = req.cookies["cart_id"];
+    return this.cartsService.addProduct(cartId, updateCartDto)
   }
 
   @Public()
   @ResponseMessage("remove product")
   @Patch('remove-product')
   removeProduct(
-    @Body('id') id: string,
+    @Body('id') productId: string,
     @Req() req: Request
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.removeProduct(cartId, id);
+    return this.cartsService.removeProduct(cartId, productId);
   }
 
   @Public()
   @ResponseMessage("change product type")
   @Patch("change-product-type")
   changeProductType(
-    @Body("_id") _id: string,
+    @Body("_id") productId: string,
     @Body("value") value: number | string,
     @Body("type") type: string,
     @Req() req: Request
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.changProductType(cartId, _id, value, type);
+    return this.cartsService.changProductType(cartId, productId, value, type);
   }
 
   @Public()
@@ -72,11 +72,22 @@ export class CartsController {
   @ResponseMessage("")
   @Delete("delete-user-address/:id")
   deleteAddress(
-    @Param("id") id: string,
+    @Param("id") addressId: string,
     @Req() req: Request
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.deleteUserAddress(cartId, id);
+    return this.cartsService.deleteUserAddress(cartId, addressId);
   }
 
+  @Public()
+  @ResponseMessage("")
+  @Patch("edit-user-address/:id")
+  editAddress(
+    @Param("id") addressId: string,
+    @Body() updateUserAddress: UpdateUserAddressDto,
+    @Req() req: Request
+  ) {
+    const cartId = req.cookies["cart_id"];
+    return this.cartsService.updateUserAddress(cartId, addressId, updateUserAddress);
+  }
 }
