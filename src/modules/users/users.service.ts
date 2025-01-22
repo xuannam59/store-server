@@ -3,7 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
-import mongoose, { Model, mongo } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { hashPasswordHelper } from 'src/helpers/util';
 import aqp from 'api-query-params';
 import { RegisterUser } from '@/auth/dto/auth-user.dto';
@@ -12,7 +12,6 @@ import { Role } from '../roles/schemas/role.schema';
 import { generateRandomNumber } from '@/helpers/generate';
 import { ForgotPassword } from './schemas/forgot-password.schema';
 import { MailService } from '../mail/mail.service';
-import { subscribe } from 'diagnostics_channel';
 
 
 @Injectable()
