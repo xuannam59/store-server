@@ -19,6 +19,15 @@ export class ProductsController {
   }
 
   @Public()
+  @Get("get-related/:slug")
+  @ResponseMessage("")
+  getRelatedProducts(
+    @Param("slug") slug: string
+  ) {
+    return this.productsService.getRelatedProducts(slug);
+  }
+
+  @Public()
   @Get()
   @ResponseMessage("Fetch products with pagination")
   findAll(
@@ -63,6 +72,4 @@ export class ProductsController {
   ) {
     return this.productsService.remove(id, user);
   }
-
-
 }

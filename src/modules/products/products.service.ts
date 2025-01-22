@@ -86,6 +86,24 @@ export class ProductsService {
     return result;
   }
 
+  async getRelatedProducts(slug: string) {
+    const product = await this.productModel.findOne({
+      slug: slug
+    });
+
+    if (!product)
+      return [];
+
+    const categoryId = product.categoryId;
+
+    const relateProducts = await this.productModel.find({
+      categoryId: categoryId,
+      _id: { $nin: product._id }
+    }).limit(4);
+
+    return relateProducts;
+  }
+
   async update(id: string, updateProductDto: UpdateProductDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id product không hợp lệ")
