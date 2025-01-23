@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { User } from '@/decorators/customize';
+import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
 
 @Controller('reviews')
@@ -10,21 +10,24 @@ export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) { }
 
   @Post()
-  create(
+  @ResponseMessage("Create review")
+  createReview(
     @Body() createReviewDto: CreateReviewDto,
     @User() user: IUser
   ) {
-    return this.reviewsService.create(createReviewDto, user);
+    return this.reviewsService.createReview(createReviewDto, user);
   }
 
+  @Public()
+  @ResponseMessage("Fetch reviews")
   @Get()
-  findAll(
-    @Query("current") currentPage: string,
-    @Query("pageSize") limit: string,
-    @Query("id") productId: string,
+  findAllReview(
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
+    @Query("product_id") productId: string,
     @Query() qs: string
   ) {
-    return this.reviewsService.findAll(+currentPage, +limit, productId, qs);
+    return this.reviewsService.findAllReviews(+current, +pageSize, productId, qs);
   }
 
   @Patch(':id')

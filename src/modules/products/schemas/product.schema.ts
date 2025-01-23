@@ -55,6 +55,18 @@ export class Product {
     })
     slug: string
 
+    @Prop({
+        type: {
+            score: Number,
+            numberOf: Number,
+        },
+        default: { score: 0, numberOf: 0 },
+    })
+    reviews: {
+        score: number;
+        numberOf: number;
+    };
+
     @Prop({ type: Object })
     createdBy: {
         _id: mongoose.Schema.Types.ObjectId,

@@ -21,6 +21,9 @@ export class Review {
     @Prop()
     images: string[]
 
+    @Prop({ type: [String] })
+    like: string[]
+
     @Prop({ type: String, ref: "User" })
     created_by: string
 
