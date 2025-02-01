@@ -90,12 +90,32 @@ export class ReviewsService {
     };
   }
 
+  async changeLike(reviewId: string, userId: string) {
+    const existUserId = await this.reviewModule.findOne({
+      _id: reviewId,
+      like: userId
+    });
 
-  update(id: string, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+    (existUserId ?
+      await this.reviewModule.updateOne({
+        _id: reviewId,
+        like: userId
+      }, {
+        $pull: {
+          like: userId
+        }
+      })
+      :
+      await this.reviewModule.updateOne({
+        _id: reviewId
+      }, {
+        $push: {
+          like: userId
+        }
+      })
+    )
+
+    return "Change Success"
   }
 
-  remove(id: string, user: IUser) {
-    return `This action removes a #${id} review`;
-  }
 }

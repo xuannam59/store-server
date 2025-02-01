@@ -30,16 +30,12 @@ export class ReviewsController {
     return this.reviewsService.findAllReviews(+current, +pageSize, productId, qs);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewsService.update(id, updateReviewDto);
-  }
-
-  @Delete(':id')
-  remove(
-    @Param('id') id: string,
+  @ResponseMessage("Fetch reviews")
+  @Patch("change-like/:id")
+  changeButtonLike(
+    @Param("id") reviewId: string,
     @User() user: IUser
   ) {
-    return this.reviewsService.remove(id, user);
+    return this.reviewsService.changeLike(reviewId, user._id);
   }
 }
