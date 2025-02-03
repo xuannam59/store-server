@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
 import { IUser } from '../users/users.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schemas/review.schema';
@@ -44,8 +43,6 @@ export class ReviewsService {
       }
     })
 
-
-
     return { _id: result._id };
   }
 
@@ -53,7 +50,6 @@ export class ReviewsService {
     const { filter } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
-    delete filter.id;
     filter.isDeleted = false
 
     const reviews = await this.reviewModule.find({

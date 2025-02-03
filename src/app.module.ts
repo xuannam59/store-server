@@ -15,6 +15,7 @@ import { PermissionsModule } from './modules/permissions/permissions.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { CartsModule } from './modules/carts/carts.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { DiscussModule } from './modules/discuss/discuss.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -43,7 +44,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     PermissionsModule,
     PromotionsModule,
     CartsModule,
-    ReviewsModule
+    ReviewsModule,
+    DiscussModule
   ],
   controllers: [AppController],
   providers: [AppService],
