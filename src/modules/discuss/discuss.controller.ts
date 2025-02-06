@@ -28,4 +28,13 @@ export class DiscussController {
     return this.discussService.fetchDiscuss(+pageSize, qs);
   }
 
+  @Public()
+  @ResponseMessage("Delete")
+  @Delete(":id")
+  deleteDiscuss(
+    @Param("id") id: string
+  ) {
+    return this.discussService.deleteDiscuss(id);
+  }
+
 }

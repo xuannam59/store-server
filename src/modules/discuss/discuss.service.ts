@@ -39,4 +39,23 @@ export class DiscussService {
 
     return result;
   }
+
+  async deleteDiscuss(discussId: string) {
+    const queue = [discussId];
+    const allIdsToDelete = new Set(queue);
+    while (queue.length > 0) {
+      const currentLevelIds = queue.splice(0, queue.length);
+      const children = await this.discussModel.find({ parent_id: { $in: currentLevelIds } }, { _id: 1 });
+
+      if (children.length > 0) {
+        const childrenIds = children.map(c => c._id.toString());
+        queue.push(...childrenIds);
+        childrenIds.forEach(id => allIdsToDelete.add(id));
+      }
+    }
+
+    await this.discussModel.deleteMany({ _id: { $in: Array.from(allIdsToDelete) } });
+
+    return `Deleted successful ${allIdsToDelete.size} comments`;
+  }
 }
