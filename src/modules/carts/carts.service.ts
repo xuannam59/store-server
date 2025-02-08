@@ -35,7 +35,7 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug",
+          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",
@@ -123,7 +123,7 @@ export class CartsService {
         .populate([
           {
             path: "productList.productId",
-            select: "title price categoryId discountPercentage images versions slug",
+            select: "title price categoryId discountPercentage images versions slug thumbnail",
           },
           {
             path: "userAddress",
@@ -149,7 +149,7 @@ export class CartsService {
           { new: true }).populate([
             {
               path: "productList.productId",
-              select: "title price categoryId discountPercentage images versions slug",
+              select: "title price categoryId discountPercentage images versions slug thumbnail",
             },
             {
               path: "userAddress",
@@ -182,7 +182,7 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug",
+          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",
@@ -201,7 +201,7 @@ export class CartsService {
     ).populate([
       {
         path: "productList.productId",
-        select: "title price categoryId discountPercentage images versions slug",
+        select: "title price categoryId discountPercentage images versions slug thumbnail",
       },
       {
         path: "userAddress",
@@ -270,7 +270,7 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug",
+          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",
@@ -310,7 +310,7 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug",
+          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",

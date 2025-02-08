@@ -25,6 +25,9 @@ export class Product {
     images: string[]
 
     @Prop()
+    thumbnail: string
+
+    @Prop()
     chip: string
 
     @Prop()

@@ -33,6 +33,10 @@ export class CreateProductDto {
     @IsString({ each: true, message: "image có định dạng string" })
     images: string[]
 
+    @IsString()
+    @IsNotEmpty()
+    thumbnail: string
+
     @IsMongoId()
     categoryId: mongoose.Schema.Types.ObjectId
 

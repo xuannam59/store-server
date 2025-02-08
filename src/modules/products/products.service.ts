@@ -17,13 +17,13 @@ export class ProductsService {
     const { title, description, price,
       discountPercentage, categoryId,
       status, images, versions,
-      chip, ram, ssd, gpu } = createProductDto;
+      chip, ram, ssd, gpu, thumbnail } = createProductDto;
 
     const product = await this.productModel.create({
       title, description, price,
       discountPercentage,
       images, status, versions, categoryId,
-      chip, ram, ssd,
+      chip, ram, ssd, gpu, thumbnail,
       createdBy: {
         _id: user._id,
         email: user.email
