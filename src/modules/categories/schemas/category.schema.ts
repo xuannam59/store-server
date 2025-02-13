@@ -8,8 +8,8 @@ export class Category {
     @Prop()
     title: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Category" })
-    parentId: mongoose.Schema.Types.ObjectId
+    @Prop({ type: String, ref: "Category" })
+    parentId: string
 
     @Prop({
         type: String,

@@ -39,6 +39,17 @@ export class ProductsController {
   }
 
   @Public()
+  @Get("get-filter")
+  @ResponseMessage("")
+  fetchProductsByFilter(
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
+    @Query() query
+  ) {
+    return this.productsService.fetchProductsByFilter(+current, +pageSize, query)
+  }
+
+  @Public()
   @Get(':idOrSlug')
   @ResponseMessage("Fetch a product by slug")
   findOne(@Param('idOrSlug') idOrSlug: string) {

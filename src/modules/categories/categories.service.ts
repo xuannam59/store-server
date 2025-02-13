@@ -41,7 +41,6 @@ export class CategoriesService {
     const result = await this.categoryModel
       .find(filter)
       .select("title status slug displayMode image parentId")
-      .populate({ path: "parentId", select: { title: 1 } })
       .exec();
 
     return {
