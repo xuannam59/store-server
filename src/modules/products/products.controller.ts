@@ -33,20 +33,9 @@ export class ProductsController {
   findAll(
     @Query("current") current: string,
     @Query("pageSize") pageSize: string,
-    @Query() qs: string
-  ) {
-    return this.productsService.findAll(+current, +pageSize, qs);
-  }
-
-  @Public()
-  @Get("get-filter")
-  @ResponseMessage("")
-  fetchProductsByFilter(
-    @Query("current") current: string,
-    @Query("pageSize") pageSize: string,
     @Query() query
   ) {
-    return this.productsService.fetchProductsByFilter(+current, +pageSize, query)
+    return this.productsService.findAll(+current, +pageSize, query);
   }
 
   @Public()

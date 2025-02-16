@@ -34,14 +34,50 @@ export class ProductsService {
     return product;
   }
 
-  async findAll(current: number, pageSize: number, qs: string) {
-    const { filter, sort, population, projection } = aqp(qs)
-    delete filter.current
-    delete filter.pageSize
-    if (!filter.isDeleted) {
-      filter.isDeleted = false;
-    }
+  async findAll(current: number, pageSize: number, query) {
+    const { sort } = aqp(query)
+    let filter: any = {
+      isDeleted: false
+    };
 
+    // get products according to the category
+    if (query.categorySlug) {
+      const categorySlug = query.categorySlug;
+      const categories = await this.categoryModel.find();
+      const categoryId = categories.find(item => item.slug === categorySlug)._id.toString();
+      if (!categoryId)
+        throw new BadRequestException("not product found");
+
+      const queue = [categoryId];
+      const allIds = [categoryId];
+      while (queue.length > 0) {
+        const currentIds = queue.splice(0, queue.length);
+        const children = categories.filter(item => currentIds.includes(item.parentId));
+
+        if (children.length > 0) {
+          const childrenId = children.map(item => item._id.toString());
+          queue.push(...childrenId);
+          allIds.push(...childrenId);
+        }
+      }
+      filter.categoryId = { $in: allIds }
+    }
+    if (query.chip) {
+      const chipList = query.chip.split(',');
+      filter.chip = { $in: chipList }
+    }
+    if (query.ram) {
+      const ramList = query.ram.split(',');
+      filter.ram = { $in: ramList }
+    }
+    if (query.ssd) {
+      const ssdList = query.ssd.split(',');
+      filter.ssd = { $in: ssdList }
+    }
+    if (query.price) {
+      const priceRange = query.price.split(',');
+      filter.$and = [{ price: { $gte: priceRange[0] } }, { price: { $lte: priceRange[1] } }]
+    }
     let currentDefault = current ? current : 1;
     let limitDefault = pageSize ? pageSize : 10;
 
@@ -67,56 +103,6 @@ export class ProductsService {
       },
       result: result
     };
-  }
-
-  async fetchProductsByFilter(current: number, pageSize: number, query) {
-    let filter: any = {
-      isDeleted: false
-    };
-    const categorySlug = query.categorySlug;
-    if (categorySlug) {
-      const categories = await this.categoryModel.find();
-      const categoryId = categories.find(item => item.slug === categorySlug)._id.toString();
-      if (!categoryId)
-        throw new BadRequestException("not product found");
-
-      const queue = [categoryId];
-      const allIds = [categoryId];
-      while (queue.length > 0) {
-        const currentIds = queue.splice(0, queue.length);
-        const children = categories.filter(item => currentIds.includes(item.parentId));
-
-        if (children.length > 0) {
-          const childrenId = children.map(item => item._id.toString());
-          queue.push(...childrenId);
-          allIds.push(...childrenId);
-        }
-      }
-      filter.categoryId = { $in: allIds }
-    }
-
-    let currentDefault = current ? current : 1;
-    let limitDefault = pageSize ? pageSize : 10;
-
-    let skip = (currentDefault - 1) * limitDefault;
-
-    const totalItems = await this.productModel.countDocuments(filter);
-    const totalPage = Math.ceil(totalItems / limitDefault);
-
-    const result = await this.productModel
-      .find(filter)
-      .skip(skip)
-      .limit(limitDefault);
-
-    return {
-      meta: {
-        current: currentDefault,
-        pageSize: limitDefault,
-        totalItems: totalItems,
-        pages: totalPage
-      },
-      result: result
-    }
   }
 
   async findOne(idOrSlug: string) {
