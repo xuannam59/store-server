@@ -6,13 +6,13 @@ const streamifier = require('streamifier');
 
 @Injectable()
 export class CloudinaryService {
-    uploadFile(file: Express.Multer.File): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    uploadFile(file: Express.Multer.File, folderName: string): Promise<UploadApiResponse | UploadApiErrorResponse> {
         const originalName = file.originalname.split('.')[0];
         const uniqueFilename = `${originalName}-${Date.now()}`;
 
         return new Promise<UploadApiResponse | UploadApiErrorResponse>((resolve, reject) => {
             const uploadStream = cloudinary.uploader.upload_stream({
-                folder: "images",
+                folder: folderName ?? "images",
                 public_id: uniqueFilename,
                 transformation: [
                     { crop: 'scale' },
@@ -30,8 +30,8 @@ export class CloudinaryService {
         });
     }
 
-    async uploadMultipleFiles(files: Express.Multer.File[]): Promise<(UploadApiResponse | UploadApiErrorResponse)[]> {
-        const uploadPromises = files.map((file) => this.uploadFile(file));
+    async uploadMultipleFiles(files: Express.Multer.File[], folderName: string): Promise<(UploadApiResponse | UploadApiErrorResponse)[]> {
+        const uploadPromises = files.map((file) => this.uploadFile(file, folderName));
         return Promise.all(uploadPromises);
     }
 }

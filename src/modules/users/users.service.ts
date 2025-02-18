@@ -110,11 +110,12 @@ export class UsersService {
   async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new BadRequestException("id user không hợp lệ");
-
+    const { name, age, gender, address, avatar, role, phone } = updateUserDto
     const result = await this.userModel.updateOne(
       { _id: id },
       {
-        ...updateUserDto,
+        name, age, gender, phone,
+        address, avatar, role,
         updatedBy: {
           _id: user._id,
           email: user.email

@@ -42,7 +42,7 @@ export class AuthService {
 
   // [POST] /auth/login
   async login(user: IUser, res: Response, cartId: string) {
-    const { _id, name, email, role, avatar } = user;
+    const { _id, name, email, role, avatar, phone, gender, age } = user;
     const payload = {
       sub: "token access",
       iss: "from server",
@@ -74,6 +74,9 @@ export class AuthService {
         _id,
         name,
         email,
+        phone,
+        age,
+        gender,
         role,
         avatar,
         permissions: temp?.permissions ?? []
@@ -108,13 +111,17 @@ export class AuthService {
 
   // [GET] /auth/account
   async getAccount(user: IUser, res: Response) {
-    const { _id, name, email, role, avatar } = user;
-    const userRole = user.role as unknown as { _id: string, name: string }
+    const { _id, name, email, role, avatar, phone, age, gender } = user;
+    const userRole = user.role as unknown as { _id: string, name: string };
     const temp = await this.roleService.findOne(userRole._id);
+
     return {
       _id,
       name,
       email,
+      phone,
+      age,
+      gender,
       role,
       avatar,
       permissions: temp?.permissions ?? []

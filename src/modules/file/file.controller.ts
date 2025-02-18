@@ -1,4 +1,4 @@
-import { Controller, HttpStatus, ParseFilePipeBuilder, Post, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Controller, Headers, HttpStatus, ParseFilePipeBuilder, Post, Query, UploadedFile, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FileService } from './file.service';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { Public, ResponseMessage } from '@/decorators/customize';
@@ -10,22 +10,24 @@ export class FileController {
   @Post('upload')
   @ResponseMessage("Upload file")
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile(
-    new ParseFilePipeBuilder()
-      .addFileTypeValidator({
-        fileType: /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|application\/msword|text\/plain|)$/i,
-      })
-      .addMaxSizeValidator({
-        maxSize: 1000 * 1024, // 1MB
-      })
-      .build({
-        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
-      }),
-  ) file: Express.Multer.File) {
-    return this.fileService.uploadFile(file);
+  uploadFile(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /^(jpg|jpeg|image\/jpeg|png|image\/png|gif|txt|pdf|application\/pdf|doc|docx|application\/msword|text\/plain|)$/i,
+        })
+        .addMaxSizeValidator({
+          maxSize: 1000 * 1024, // 1MB
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+        }),
+    ) file: Express.Multer.File,
+    @Headers('folder-name') folderName: string
+  ) {
+    return this.fileService.uploadFile(file, folderName);
   }
 
-  @Public()
   @Post('upload-multiple')
   @ResponseMessage("Upload multiple files")
   @UseInterceptors(FilesInterceptor('files'))
@@ -42,7 +44,8 @@ export class FileController {
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
         }),
     ) files: Express.Multer.File[],
+    @Headers('folder-name') folderName: string
   ) {
-    return this.fileService.uploadMultipleFiles(files);
+    return this.fileService.uploadMultipleFiles(files, folderName);
   }
 }

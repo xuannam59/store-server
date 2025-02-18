@@ -6,9 +6,9 @@ export class FileService {
     constructor(private readonly cloudinaryService: CloudinaryService) { }
 
     // [POST] 
-    async uploadFile(file: Express.Multer.File) {
+    async uploadFile(file: Express.Multer.File, folderName: string) {
         try {
-            const link = await this.cloudinaryService.uploadFile(file);
+            const link = await this.cloudinaryService.uploadFile(file, folderName);
             return {
                 fileUpload: link.secure_url
             };
@@ -17,9 +17,9 @@ export class FileService {
         }
     }
 
-    async uploadMultipleFiles(files: Express.Multer.File[]) {
+    async uploadMultipleFiles(files: Express.Multer.File[], folderName: string) {
         try {
-            const data = await this.cloudinaryService.uploadMultipleFiles(files)
+            const data = await this.cloudinaryService.uploadMultipleFiles(files, folderName)
             const result = data.map(item => item.secure_url)
             return {
                 linkUrls: result
