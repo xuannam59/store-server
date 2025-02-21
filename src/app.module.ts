@@ -16,6 +16,7 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
 import { CartsModule } from './modules/carts/carts.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { DiscussModule } from './modules/discuss/discuss.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 
 @Module({
@@ -45,7 +46,8 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
     PromotionsModule,
     CartsModule,
     ReviewsModule,
-    DiscussModule
+    DiscussModule,
+    OrdersModule
   ],
   controllers: [AppController],
   providers: [AppService],

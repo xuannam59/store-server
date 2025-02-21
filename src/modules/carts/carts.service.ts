@@ -32,15 +32,7 @@ export class CartsService {
         }
       ],
     })
-      .populate([
-        {
-          path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug thumbnail",
-        },
-        {
-          path: "userAddress",
-        }
-      ]);
+      .populate([{ path: "productList.productId" }, { path: "userAddress" }]);
     if (!cart) {
       const newCart = await this.cartModel.create({});
 
@@ -114,25 +106,15 @@ export class CartsService {
     }
     if (productExist) {
       const newQuantity = Math.min(productExist.quantity + quantity, productQuantity);
-      const result = await this.cartModel.findOneAndUpdate({
+
+      await this.cartModel.updateOne({
         _id: cartId,
         "productList.productId": productId
       },
-        { $set: { "productList.$.quantity": newQuantity } },
-        { new: true })
-        .populate([
-          {
-            path: "productList.productId",
-            select: "title price categoryId discountPercentage images versions slug thumbnail",
-          },
-          {
-            path: "userAddress",
-          }
-        ]);
-      return result;
+        { $set: { "productList.$.quantity": newQuantity } });
     } else {
       if (productQuantity > 0) {
-        const result = await this.cartModel.findOneAndUpdate(
+        await this.cartModel.findOneAndUpdate(
           { _id: cartId },
           {
             $push: {
@@ -145,28 +127,19 @@ export class CartsService {
                 $position: 0
               }
             }
-          },
-          { new: true }).populate([
-            {
-              path: "productList.productId",
-              select: "title price categoryId discountPercentage images versions slug thumbnail",
-            },
-            {
-              path: "userAddress",
-            }
-          ]);
-        return result
+          });
       }
     }
+    return "Add product successfully";
   }
 
-  async removeProduct(cartId: string, productId: string) {
+  async removeProduct(cartId: string, productId: string, color: string) {
     if (!Types.ObjectId.isValid(productId))
       throw new BadRequestException("Product id is incorrect!");
 
     const productExist = await this.cartModel.findOne({
       _id: cartId,
-      "productList._id": productId,
+      "productList.productId": productId,
     });
 
     if (!productExist) {
@@ -175,40 +148,21 @@ export class CartsService {
 
     await this.cartModel.updateOne(
       { _id: cartId },
-      { $pull: { productList: { _id: productId } } }
+      { $pull: { productList: { productId, color } } }
     );
 
-    const result = await this.cartModel.findOne({ _id: cartId })
-      .populate([
-        {
-          path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug thumbnail",
-        },
-        {
-          path: "userAddress",
-        }
-      ]);
-    return result;
+    return "Remove product successfully";
   }
 
   async changProductType(cartId: string, productId: string, value: number | string, type: string) {
     const updateField = type === "quantity" ? "productList.$.quantity" : "productList.$.color";
 
-    const cartUser = await this.cartModel.findOneAndUpdate(
-      { _id: cartId, "productList._id": productId },
-      { $set: { [updateField]: value } },
-      { new: true }
-    ).populate([
-      {
-        path: "productList.productId",
-        select: "title price categoryId discountPercentage images versions slug thumbnail",
-      },
-      {
-        path: "userAddress",
-      }
-    ]);
+    await this.cartModel.updateOne(
+      { _id: cartId, "productList.productId": productId },
+      { $set: { [updateField]: value } }
+    );
 
-    return cartUser;
+    return "Change successfully";
   }
 
   async addUserAddress(cartId: string, createUserAddress: CreateUserAddressDto) {
@@ -270,7 +224,6 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",
@@ -310,7 +263,6 @@ export class CartsService {
       .populate([
         {
           path: "productList.productId",
-          select: "title price categoryId discountPercentage images versions slug thumbnail",
         },
         {
           path: "userAddress",

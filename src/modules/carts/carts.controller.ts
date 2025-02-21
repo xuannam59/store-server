@@ -38,10 +38,11 @@ export class CartsController {
   @Patch('remove-product')
   removeProduct(
     @Body('id') productId: string,
+    @Body('color') color: string,
     @Req() req: Request
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.removeProduct(cartId, productId);
+    return this.cartsService.removeProduct(cartId, productId, color);
   }
 
   @Public()
