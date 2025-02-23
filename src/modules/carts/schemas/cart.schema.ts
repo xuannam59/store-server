@@ -20,9 +20,6 @@ export class Cart {
         quantity: number,
         color: string,
     }[]
-
-    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "UserAddress" })
-    userAddress: mongoose.Schema.Types.ObjectId[];
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

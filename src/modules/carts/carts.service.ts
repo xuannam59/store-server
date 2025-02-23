@@ -31,8 +31,7 @@ export class CartsService {
           userId: userId ? new Types.ObjectId(userId) : undefined
         }
       ],
-    })
-      .populate([{ path: "productList.productId" }, { path: "userAddress" }]);
+    }).populate([{ path: "productList.productId" }]);
     if (!cart) {
       const newCart = await this.cartModel.create({});
 
@@ -43,12 +42,16 @@ export class CartsService {
       });
       return newCart;
     }
+    const userAddress = await this.userAddressModel.find({ cartId: cart._id });
     res.cookie("cart_id",
       cart._id, {
       httpOnly: true,
       maxAge: ms(this.configService.get<string>("CART_EXPIRE"))
     });
-    return cart;
+    return {
+      ...cart.toObject(),
+      userAddress
+    };
   }
 
   async checkAccountCart(userId: string, cartId: string, res: Response) {
@@ -166,109 +169,44 @@ export class CartsService {
   }
 
   async addUserAddress(cartId: string, createUserAddress: CreateUserAddressDto) {
-    const { name, phoneNumber, homeNo, province, district, ward, isDefault } = createUserAddress
-    const cart = await this.cartModel.findById(cartId);
-    if (!cart)
-      throw new BadRequestException("Cart is unavailable");
-    if (cart.userAddress.length === 2)
-      throw new BadRequestException("Add up to 2 address");
-    if (isDefault && cart.userAddress.length > 0) {
-      await this.userAddressModel.updateOne({
-        _id: cart.userAddress[0]
-      }, {
-        isDefault: false
-      })
+    const { name, phoneNumber, homeNo, province, district, ward, isDefault, email } = createUserAddress
+    const countAddress = await this.userAddressModel.countDocuments({ cartId });
+    if (countAddress === 2)
+      throw new BadRequestException("Only create up to two address");
+    if (isDefault) {
+      await this.userAddressModel.updateMany({ cartId, isDefault: true }, { isDefault: false });
     }
-    const newUserAddress = await this.userAddressModel.create({
-      name, phoneNumber, homeNo,
-      province, district, ward, isDefault
-    });
-
-    const result = await this.cartModel.findOneAndUpdate({ _id: cartId },
-      { $push: { userAddress: newUserAddress._id } },
-      { new: true }
-    );
-
-    return result;
+    const result = await this.userAddressModel.create({
+      cartId, name, phoneNumber,
+      homeNo, province, district,
+      ward, isDefault, email
+    })
+    return result._id;
   }
 
   async updateUserAddress(cartId: string, addressId: string, updateUserAddress: UpdateUserAddressDto) {
     const { name, phoneNumber, homeNo, province, district, ward, isDefault } = updateUserAddress;
-    const [cart, userAddress] = await Promise.all([
-      this.cartModel.findById(cartId),
-      this.userAddressModel.findById(addressId)
-    ]);
+    const existingAddress = await this.userAddressModel.findById(addressId).exec();
+    if (!existingAddress)
+      throw new BadRequestException("The address does not exist!");
 
-    if (!cart || !userAddress)
-      throw new BadRequestException("Cart or user address is unavailable");
-
-    if (userAddress.isDefault !== isDefault) {
-      const newDefaultAddress = cart.userAddress.find(item => item.toString() !== addressId);
-      if (newDefaultAddress) {
-        await this.userAddressModel.updateOne(
-          { _id: newDefaultAddress },
-          { isDefault: !isDefault }
-        );
-      } else {
-        throw new BadRequestException("This Address must be the default");
-      }
+    if (isDefault && existingAddress.isDefault !== true) {
+      await this.userAddressModel.updateMany({ cartId, isDefault: true }, { isDefault: false });
     }
 
-    await this.userAddressModel
-      .findOneAndUpdate(
-        { _id: addressId },
-        { name, phoneNumber, homeNo, province, district, ward, isDefault },
-      )
-    const result = await this.cartModel
-      .findById(cartId)
-      .populate([
-        {
-          path: "productList.productId",
-        },
-        {
-          path: "userAddress",
-        }
-      ]);
-    return result;
+    await this.userAddressModel.updateOne({ cartId, _id: addressId },
+      { name, phoneNumber, homeNo, province, district, ward, isDefault });
+
+    return cartId;
   }
 
   async deleteUserAddress(cartId: string, addressId: string) {
-    const addressObjectId = new Types.ObjectId(addressId);
-    const [cart, userAddress] = await Promise.all([
-      this.cartModel.findById(cartId),
-      this.userAddressModel.findById(addressObjectId)
-    ])
-    if (!cart || !userAddress)
-      throw new BadRequestException("Cart or user address is unavailable");
-
-    if (userAddress.isDefault) {
-      const newDefaultAddress = cart.userAddress.find(item => item.toString() !== addressId);
-
-      if (newDefaultAddress) {
-        await this.userAddressModel.updateOne(
-          { _id: newDefaultAddress },
-          { isDefault: true }
-        );
-      }
+    const existAddress = await this.userAddressModel.findOneAndDelete({ cartId, _id: addressId });
+    if (!existAddress)
+      throw new BadRequestException("The address does not exist!");
+    if (existAddress.isDefault) {
+      await this.userAddressModel.updateOne({ cartId }, { isDefault: true });
     }
-
-    await this.userAddressModel.deleteOne({ _id: addressObjectId });
-
-    const updatedCart = await this.cartModel
-      .findOneAndUpdate(
-        { _id: cartId },
-        { $pull: { userAddress: addressObjectId } },
-        { new: true }
-      )
-      .populate([
-        {
-          path: "productList.productId",
-        },
-        {
-          path: "userAddress",
-        }
-      ]);
-
-    return updatedCart;
+    return "Delete address successfully";
   }
 }

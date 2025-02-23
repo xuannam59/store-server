@@ -7,10 +7,16 @@ export type UserAddressDocument = HydratedDocument<UserAddress>;
 @Schema({ timestamps: true })
 export class UserAddress {
     @Prop()
+    cartId: string;
+
+    @Prop()
     name: string
 
     @Prop()
     phoneNumber: string;
+
+    @Prop()
+    email: string
 
     @Prop()
     homeNo: string;

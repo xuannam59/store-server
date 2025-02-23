@@ -7,6 +7,9 @@ export class CreateUserAddressDto {
     @IsNotEmpty()
     phoneNumber: string;
 
+    @IsNotEmpty()
+    email: string;
+
     @IsOptional()
     @IsString()
     homeNo: string;

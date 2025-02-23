@@ -16,10 +16,10 @@ export class CartsController {
   getCart(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
-    @Body() data: { userId: string }
+    @Body("userId") userId: string
   ) {
     const cartId = req.cookies["cart_id"];
-    return this.cartsService.getCart(cartId, res, data.userId);
+    return this.cartsService.getCart(cartId, res, userId);
   }
 
   @Public()
