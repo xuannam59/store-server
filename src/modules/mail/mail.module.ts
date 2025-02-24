@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-import { MailController } from './mail.controller';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from 'path';
+import { BullModule } from '@nestjs/bullmq';
+import { MailProcessorService } from './mail.processor';
 
 @Module({
   imports: [
@@ -27,9 +28,18 @@ import { join } from 'path';
       }),
       inject: [ConfigService],
     }),
+    BullModule.registerQueue({
+      name: "mail-queue",
+      defaultJobOptions: {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 5000
+        }
+      }
+    })
   ],
-  controllers: [MailController],
-  providers: [MailService],
+  providers: [MailService, MailProcessorService],
   exports: [MailService]
 })
 export class MailModule { }

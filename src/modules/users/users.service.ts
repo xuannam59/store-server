@@ -226,12 +226,13 @@ export class UsersService {
 
     // xứ lý gửi mã otp qua mail
     const dataMail = {
-      email, otp,
+      email,
+      data: otp,
       name: exist.name,
       template: "send-otp",
       subject: `Mã OTP: ${otp}`
     }
-    this.mailerService.sendOTP(dataMail);
+    this.mailerService.sendMail(dataMail);
 
     const result = await this.forgotPasswordModel.create({
       email,

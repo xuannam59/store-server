@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thông Tin Đơn Hàng</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+    <div
+        style="min-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+        <!-- Header -->
+        <div style="background-color: #9370DB; color: #ffffff; text-align: center; padding: 20px;">
+            <h2 style="margin: 0; font-size: 24px;">Xác Nhận Đơn Hàng</h2>
+        </div>
+
+        <!-- Content -->
+        <div style="padding: 20px; color: #333333;">
+            <p style="margin: 10px 0; line-height: 1.6;">Chào <strong
+                    style="color: #9370DB;">{{data.receiver}}</strong>,</p>
+            <p style="margin: 10px 0; line-height: 1.6;">Cảm ơn bạn đã đặt hàng tại cửa hàng JunKun. Dưới đây là thông
+                tin đơn hàng của bạn:</p>
+
+            <!-- Bảng sản phẩm -->
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <thead>
+                    <tr>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Hình Ảnh</th>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Sản Phẩm</th>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Số Lượng</th>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Màu Sắc</th>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Đơn Giá</th>
+                        <th
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            Tổng Giá</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each data.products}}
+                    <tr>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #f9f9f9;">
+                            <img src="{{this.thumbnail}}" alt="{{this.title}}"
+                                style="width: 50px; height: 50px; border-radius: 5px;">
+                        </td>
+                        <td style="border: 1px solid #dddddd; padding: 10px; background-color: #f9f9f9;">{{this.title}}
+                        </td>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #f9f9f9;">
+                            {{this.quantity}}</td>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #f9f9f9;">
+                            <span
+                                style="display: inline-block; width: 20px; height: 20px; background-color: {{this.color}}; border: 1px solid #000; border-radius: 50%;">
+                            </span>
+                        </td>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #f9f9f9;">
+                            {{formatCurrencyVND this.price}}
+                        </td>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #f9f9f9;">
+                            {{formatCurrencyVND (multiply this.price this.quantity)}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="5"
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            <strong style="font-size: 18px;">Tổng giá trị đơn hàng:</strong>
+                        </td>
+                        <td
+                            style="border: 1px solid #dddddd; padding: 10px; text-align: center; background-color: #90EE90; color: #333333;">
+                            <strong>{{formatCurrencyVND data.totalAmount}} </strong>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- Thông tin tổng kết -->
+            <p style="margin: 10px 0; line-height: 1.6;">
+                <strong style="color: #9370DB;">Hình thức thanh toán:</strong>
+                {{getPaymentMethod data.paymentMethod}}
+            </p>
+            <p style="margin: 10px 0; line-height: 1.6;">
+                <strong style="color: #9370DB;">Địa chỉ giao hàng:</strong>
+                {{data.address}}
+            </p>
+            <p style="margin: 10px 0; line-height: 1.6;">
+                <strong style="color: #9370DB;">Số điện thoại:</strong>
+                {{data.phoneNumber}}
+            </p>
+            <p style="margin: 10px 0; line-height: 1.6;">
+                <strong style="color: #9370DB;">Trạng thái đơn hàng:</strong>
+                <span style="color: {{getStatusColor data.status}}; font-weight: bold;">
+                    {{orderStatus data.status}}
+                </span>
+            </p>
+            <p style="margin: 10px 0; line-height: 1.6; color: #DC3545; font-weight: bold;">
+                ⚠️ Nếu bạn muốn hủy đơn hàng, vui lòng liên hệ shop trong vòng 24 giờ.
+            </p>
+            <p style="margin: 10px 0; line-height: 1.6;">Cảm ơn bạn đã mua sắm cùng chúng tôi!</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background-color: #9370DB; color: #ffffff; text-align: center; padding: 10px; font-size: 14px;">
+            <p style="margin: 0;">Hỗ trợ khách hàng: <a href="mailto:leeminhnam2k2@gmail.com"
+                    style="color: #90EE90; text-decoration: none;">leeminhnam2k2@gmail.com</a></p>
+        </div>
+    </div>
+</body>
+
+</html>

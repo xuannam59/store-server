@@ -6,7 +6,19 @@ export type OrderDocument = HydratedDocument<Order>;
 @Schema({ timestamps: true })
 export class Order {
     @Prop({ type: String, ref: "User" })
-    userId: string
+    userId: string;
+
+    @Prop()
+    receiver: string;
+
+    @Prop()
+    phoneNumber: string;
+
+    @Prop()
+    address: string;
+
+    @Prop()
+    email: string;
 
     @Prop()
     totalAmount: number;
@@ -19,13 +31,6 @@ export class Order {
         thumbnail: string,
         price: string,
     }[];
-
-    @Prop({ type: Object })
-    shippingAddress: {
-        receiver: string
-        phoneNumber: string;
-        address: string;
-    }
 
     @Prop({ type: Number, default: 0 })
     status: number;

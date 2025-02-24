@@ -40,7 +40,10 @@ export class CartsService {
         httpOnly: true,
         maxAge: ms(this.configService.get<string>("CART_EXPIRE"))
       });
-      return newCart;
+      return {
+        ...newCart.toObject(),
+        userAddress: []
+      };
     }
     const userAddress = await this.userAddressModel.find({ cartId: cart._id });
     res.cookie("cart_id",

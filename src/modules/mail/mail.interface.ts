@@ -1,6 +1,6 @@
-export interface ISendOTP {
+export interface ISendMail {
     email: string,
-    otp?: string,
+    data: any
     name?: string,
     template: string,
     subject: string,

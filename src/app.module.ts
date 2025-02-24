@@ -18,6 +18,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { DiscussModule } from './modules/discuss/discuss.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
@@ -31,6 +32,18 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
           connection.plugin(mongooseSlugUpdater); // Add the plugin here
           return connection;
         }
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          password: configService.get<string>('REDIS_PASSWORD'),
+          username: configService.get<string>('REDIS_USERNAME'),
+        },
       }),
       inject: [ConfigService],
     }),

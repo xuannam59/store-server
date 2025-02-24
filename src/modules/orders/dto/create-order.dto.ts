@@ -18,7 +18,11 @@ class Product {
     price: string;
 }
 
-class ShippingAddress {
+export class CreateOrderDto {
+    @IsOptional()
+    @IsString()
+    userId: string
+
     @IsNotEmpty()
     receiver: string;
 
@@ -27,12 +31,9 @@ class ShippingAddress {
 
     @IsNotEmpty()
     address: string;
-}
 
-export class CreateOrderDto {
-    @IsOptional()
-    @IsString()
-    userId: string
+    @IsNotEmpty()
+    email: string;
 
     @IsNotEmpty()
     totalAmount: number
@@ -42,12 +43,6 @@ export class CreateOrderDto {
     @ValidateNested({ each: true })
     @Type(() => Product)
     products: Product[]
-
-    @IsNotEmpty()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => ShippingAddress)
-    shippingAddress: ShippingAddress
 
     @IsNotEmpty()
     paymentMethod: string;
