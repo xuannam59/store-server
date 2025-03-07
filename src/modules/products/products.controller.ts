@@ -38,6 +38,11 @@ export class ProductsController {
     return this.productsService.findAll(+current, +pageSize, query);
   }
 
+  @Get("/top-selling")
+  GetTopSellingAndLowQuantity() {
+    return this.productsService.getTopSellingAndLowQuantity();
+  }
+
   @Public()
   @Get(':idOrSlug')
   @ResponseMessage("Fetch a product by slug")

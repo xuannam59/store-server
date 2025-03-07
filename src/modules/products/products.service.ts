@@ -19,13 +19,13 @@ export class ProductsService {
     const { title, description, price,
       discountPercentage, categoryId,
       status, images, versions,
-      chip, ram, ssd, gpu, thumbnail } = createProductDto;
+      chip, ram, ssd, gpu, thumbnail, cost } = createProductDto;
 
     const product = await this.productModel.create({
       title, description, price,
       discountPercentage,
       images, status, versions, categoryId,
-      chip, ram, ssd, gpu, thumbnail,
+      chip, ram, ssd, gpu, thumbnail, cost,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -35,7 +35,8 @@ export class ProductsService {
   }
 
   async findAll(current: number, pageSize: number, query) {
-    const { sort } = aqp(query)
+    const { sort } = aqp(query);
+
     let filter: any = {
       isDeleted: false
     };
@@ -76,7 +77,13 @@ export class ProductsService {
     }
     if (query.price) {
       const priceRange = query.price.split(',');
-      filter.$and = [{ price: { $gte: priceRange[0] } }, { price: { $lte: priceRange[1] } }]
+      filter.price = {
+        $gte: priceRange[0],
+        $lte: priceRange[1]
+      }
+    }
+    if (query.slug) {
+      filter.slug = new RegExp(query.slug, "i");
     }
     let currentDefault = current ? current : 1;
     let limitDefault = pageSize ? pageSize : 10;
@@ -119,7 +126,7 @@ export class ProductsService {
       }).populate({ path: "categoryId", select: { title: 1 } });
     }
     if (!result)
-      throw new BadRequestException("Không tìm thấy sản phẩm")
+      throw new BadRequestException("Get information failed");
 
     return result;
   }
@@ -188,5 +195,22 @@ export class ProductsService {
     });
 
     return result;
+  }
+
+  async getTopSellingAndLowQuantity() {
+    const products = await this.productModel.find();
+    const topSelling = products.sort((a, b) => b.sold - a.sold).slice(0, 5);
+    const lowQuantity = products.sort((a, b) =>
+      a.versions.reduce((prev, cur) => prev + cur.quantity, 0)
+      - b.versions.reduce((prev, cur) => prev + cur.quantity, 0)
+    ).slice(0, 5)
+      .filter(item => {
+        const check = item.versions.reduce((prev, cur) => prev + cur.quantity, 0) < 20;
+        return check;
+      });
+    return {
+      topSelling,
+      lowQuantity
+    }
   }
 }

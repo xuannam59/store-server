@@ -3,10 +3,13 @@ import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } f
 
 class Product {
     @IsNotEmpty()
+    _id: string
+
+    @IsNotEmpty()
     title: string;
 
     @IsNotEmpty()
-    quantity: string;
+    quantity: number;
 
     @IsNotEmpty()
     color: string;
@@ -15,7 +18,10 @@ class Product {
     thumbnail: string;
 
     @IsNotEmpty()
-    price: string;
+    price: number;
+
+    @IsNotEmpty()
+    cost: number;
 }
 
 export class CreateOrderDto {

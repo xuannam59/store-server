@@ -19,6 +19,8 @@ import { DiscussModule } from './modules/discuss/discuss.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import mongooseSlugUpdater from 'mongoose-slug-updater';
 import { BullModule } from '@nestjs/bullmq';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { PayOsModule } from './modules/pay-os/pay-os.module';
 
 @Module({
   imports: [
@@ -60,7 +62,9 @@ import { BullModule } from '@nestjs/bullmq';
     CartsModule,
     ReviewsModule,
     DiscussModule,
-    OrdersModule
+    OrdersModule,
+    NotificationsModule,
+    PayOsModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Public, ResponseMessage } from '@/decorators/customize';
+import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { Request } from 'express';
+import { IUser } from '../users/users.interface';
 
 @Controller('orders')
 export class OrdersController {
@@ -20,23 +21,41 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto, cartId);
   }
 
+  @Get("statistic")
+  @ResponseMessage("Get Statistic")
+  getStatistic() {
+    return this.ordersService.getStatistic();
+  }
+
+  @Get("purchase-statistic")
+  @ResponseMessage("Get Statistic")
+  getPurchaseStatistic(
+    @Query() query: any
+  ) {
+    return this.ordersService.getPurchaseStatistic(query);
+  }
+
   @Get()
-  findAll() {
-    return this.ordersService.findAll();
+  findAll(
+    @Query("current") current: string,
+    @Query("pageSize") pageSize: string,
+    @Query() query
+  ) {
+    return this.ordersService.findAll(+current, +pageSize, query);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ordersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+  @Patch('change-status/:id')
+  @ResponseMessage("Change the status of the order")
+  update(
+    @Param('id') id: string,
+    @User() user: IUser,
+    @Body() body
+  ) {
+    return this.ordersService.changeStatus(id, body, user);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+    return this.ordersService.remove(id);
   }
 }

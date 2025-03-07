@@ -16,6 +16,9 @@ export class Product {
     categoryId: mongoose.Schema.Types.ObjectId
 
     @Prop()
+    cost: number
+
+    @Prop()
     price: number
 
     @Prop()
@@ -49,7 +52,7 @@ export class Product {
     }[]
 
     @Prop({ type: Number, default: 0 })
-    sales: number
+    sold: number
 
     @Prop({
         type: String,

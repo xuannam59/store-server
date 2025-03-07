@@ -18,6 +18,10 @@ export class CreateProductDto {
     @IsString()
     description: string
 
+    @IsNotEmpty({ message: "cost không được để trống" })
+    @IsNumber({}, { message: "cost phải làm kiểu number" })
+    cost: number
+
     @IsNotEmpty({ message: "price không được để trống" })
     @IsNumber({}, { message: "price phải làm kiểu number" })
     price: number
