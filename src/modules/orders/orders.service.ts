@@ -23,10 +23,10 @@ export class OrdersService {
 
   async create(createOrderDto: CreateOrderDto, cartId: string) {
     const { userId, receiver, email, phoneNumber,
-      address, totalAmount, products, paymentMethod } = createOrderDto;
+      address, totalAmount, products, paymentMethod, discountCode } = createOrderDto;
 
     const result = await this.orderModel.create({
-      userId, totalAmount, products,
+      userId, totalAmount, discountCode, products,
       receiver, email, phoneNumber, address,
       paymentMethod
     });
@@ -178,20 +178,39 @@ export class OrdersService {
     };
   }
 
-  async changeStatus(id: string, body, user: IUser) {
-    const { status } = body;
-    const result = await this.orderModel.findByIdAndUpdate(id,
-      {
+  async changeOrder(id: string, body, user: IUser) {
+    const { status, orderId } = body;
+    if (status) {
+      const updateQuery: any = {
         status,
         updatedBy: {
           _id: user._id,
           email: user.email
         }
-      });
-    if (!result)
-      throw new BadRequestException("Change the status of the order failed!");
-
-    return result._id;
+      }
+      if (status === "success") {
+        updateQuery.paymentStatus = 1;
+      }
+      const result = await this.orderModel.findByIdAndUpdate(id, updateQuery);
+      if (!result)
+        throw new BadRequestException("Change the order failed!");
+      return result._id;
+    }
+    if (orderId) {
+      const result = await this.orderModel.findByIdAndUpdate(id,
+        {
+          payId: orderId,
+          paymentStatus: 1,
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        });
+      if (!result)
+        throw new BadRequestException("Change the order failed!");
+      return result._id;
+    }
+    return "OK";
   }
 
   remove(id: string) {

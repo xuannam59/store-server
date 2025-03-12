@@ -40,7 +40,7 @@ export class Promotion {
 
     @Prop({
         type: String,
-        slug: "title",
+        slug: "code",
         unique: true
     })
     slug: string

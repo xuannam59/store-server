@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { HydratedDocument } from "mongoose";
+import { HydratedDocument } from "mongoose";
 
 export type OrderDocument = HydratedDocument<Order>;
 
@@ -22,6 +22,9 @@ export class Order {
 
     @Prop()
     totalAmount: number;
+
+    @Prop()
+    discountCode: string;
 
     @Prop()
     products: {

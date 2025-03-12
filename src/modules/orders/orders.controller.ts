@@ -44,14 +44,14 @@ export class OrdersController {
     return this.ordersService.findAll(+current, +pageSize, query);
   }
 
-  @Patch('change-status/:id')
+  @Patch('update/:id')
   @ResponseMessage("Change the status of the order")
   update(
     @Param('id') id: string,
     @User() user: IUser,
     @Body() body
   ) {
-    return this.ordersService.changeStatus(id, body, user);
+    return this.ordersService.changeOrder(id, body, user);
   }
 
   @Delete(':id')

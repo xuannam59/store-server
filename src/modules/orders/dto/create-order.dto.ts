@@ -1,26 +1,33 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 
 class Product {
     @IsNotEmpty()
+    @IsString()
     _id: string
 
     @IsNotEmpty()
+    @IsString()
     title: string;
 
     @IsNotEmpty()
+    @IsNumber()
     quantity: number;
 
     @IsNotEmpty()
+    @IsString()
     color: string;
 
     @IsNotEmpty()
+    @IsString()
     thumbnail: string;
 
     @IsNotEmpty()
+    @IsNumber()
     price: number;
 
     @IsNotEmpty()
+    @IsNumber()
     cost: number;
 }
 
@@ -30,18 +37,27 @@ export class CreateOrderDto {
     userId: string
 
     @IsNotEmpty()
+    @IsString()
     receiver: string;
 
     @IsNotEmpty()
+    @IsString()
     phoneNumber: string;
 
     @IsNotEmpty()
+    @IsString()
     address: string;
 
     @IsNotEmpty()
+    @IsString()
     email: string;
 
+    @IsOptional()
+    @IsString()
+    discountCode: string;
+
     @IsNotEmpty()
+    @IsNumber()
     totalAmount: number
 
     @IsNotEmpty()
@@ -51,5 +67,6 @@ export class CreateOrderDto {
     products: Product[]
 
     @IsNotEmpty()
+    @IsString()
     paymentMethod: string;
 }

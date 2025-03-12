@@ -17,17 +17,18 @@ export class PayOsService {
 
     async createPaymentLink(createPayOSDto: CreatePayOSDto) {
         const { amount, description, returnUrl, cancelUrl, items } = createPayOSDto
+        const expiredAt = Math.floor((Date.now() + 3 * 60 * 1000) / 1000);
         const body = {
             orderCode: Number(String(new Date().getTime()).slice(-6)),
             amount,
             description,
             items,
             returnUrl,
-            cancelUrl
+            cancelUrl,
+            expiredAt
         }
         try {
             const paymentLinkRes = await this.payOS.createPaymentLink(body);
-
             return {
                 bin: paymentLinkRes.bin,
                 checkoutUrl: paymentLinkRes.checkoutUrl,
@@ -38,7 +39,6 @@ export class PayOsService {
                 orderCode: paymentLinkRes.orderCode,
                 qrCode: paymentLinkRes.qrCode,
             }
-
         } catch (error) {
             console.log(error);
             throw new BadRequestException("Payment failed");

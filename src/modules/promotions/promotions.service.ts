@@ -35,7 +35,7 @@ export class PromotionsService {
   }
 
   async findAll(current: number, pageSize: number, qs) {
-    const { filter, sort, population, projection } = aqp(qs)
+    const { filter, sort, population } = aqp(qs)
     delete filter.current
     delete filter.pageSize
     filter.isDeleted = false;
