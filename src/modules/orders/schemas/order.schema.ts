@@ -34,11 +34,12 @@ export class Order {
         color: string,
         thumbnail: string,
         price: string,
-        cost: number
+        cost: number,
+        review: boolean
     }[];
 
-    @Prop({ type: String, default: "pending", enum: ["pending", "shipping", "success", "cancel", "return"] })
-    status: string;
+    @Prop({ type: Number, default: 0, enum: [0, 1, 2, 3, 4] })
+    status: number;
 
     @Prop({ type: String, default: "" })
     payId: string;

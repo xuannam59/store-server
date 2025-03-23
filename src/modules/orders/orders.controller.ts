@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { Request } from 'express';
 import { IUser } from '../users/users.interface';
+import { CreateReviewDto } from '../reviews/dto/create-review.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -54,8 +54,13 @@ export class OrdersController {
     return this.ordersService.changeOrder(id, body, user);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ordersService.remove(id);
+  @Post("review/:id")
+  @ResponseMessage("Review the product")
+  reviewProduct(
+    @Param("id") orderId: string,
+    @Body() body: CreateReviewDto,
+    @User() user: IUser
+  ) {
+    return this.ordersService.productReview(orderId, body, user);
   }
 }

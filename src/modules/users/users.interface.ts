@@ -7,11 +7,11 @@ export interface IUser {
     gender: string;
     role: {
         _id: string,
-        name: string
+        title: string
     };
     avatar: string;
     permission: {
         _id: string,
-        name: string
+        title: string
     }[]
 }

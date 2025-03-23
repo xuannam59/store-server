@@ -23,9 +23,9 @@ export class PermissionsController {
   findAll(
     @Query("current") current: string,
     @Query("pageSize") pageSize: string,
-    @Query() qs: string,
+    @Query() query,
   ) {
-    return this.permissionsService.findAll(+current, +pageSize, qs);
+    return this.permissionsService.findAll(+current, +pageSize, query);
   }
 
   @Get(':id')

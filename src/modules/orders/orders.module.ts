@@ -7,6 +7,7 @@ import { Cart, CartSchema } from '../carts/schemas/cart.schema';
 import { MailModule } from '../mail/mail.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Product, ProductSchema } from '../products/schemas/product.schema';
+import { ReviewsModule } from '../reviews/reviews.module';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -15,7 +16,8 @@ import { Product, ProductSchema } from '../products/schemas/product.schema';
     { name: Product.name, schema: ProductSchema }
   ]),
     MailModule,
-    NotificationsModule
+    NotificationsModule,
+    ReviewsModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

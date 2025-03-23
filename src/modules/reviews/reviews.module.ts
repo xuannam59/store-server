@@ -12,5 +12,6 @@ import { Product, ProductSchema } from '../products/schemas/product.schema';
   ])],
   controllers: [ReviewsController],
   providers: [ReviewsService],
+  exports: [ReviewsService]
 })
 export class ReviewsModule { }

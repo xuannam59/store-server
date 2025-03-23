@@ -12,7 +12,7 @@ import aqp from 'api-query-params';
 export class PermissionsService {
   constructor(@InjectModel(Permission.name) private permissionModel: Model<Permission>) { }
   async create(createPermissionDto: CreatePermissionDto, user: IUser) {
-    const { name, method, apiPath, module } = createPermissionDto;
+    const { title, method, apiPath, module } = createPermissionDto;
     const exist = await this.permissionModel.findOne({
       method: method,
       apiPath: apiPath
@@ -20,7 +20,7 @@ export class PermissionsService {
     if (exist) throw new BadRequestException("Permission này đã có trong hệ thống");
 
     const newPermission = await this.permissionModel.create({
-      name, method, apiPath, module,
+      title, method, apiPath, module,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -31,11 +31,11 @@ export class PermissionsService {
     };
   }
 
-  async findAll(current: number, pageSize: number, qs: string) {
-    const { filter, sort, population, projection } = aqp(qs)
-    delete filter.current
-    delete filter.pageSize
-    filter.isDeleted = false;
+  async findAll(current: number, pageSize: number, query: any) {
+    const { sort } = aqp(query);
+    let filter: any = {
+      isDeleted: false
+    }
 
     let currentDefault = current ?? 1;
     let limitDefault = pageSize ?? 10;
@@ -50,7 +50,6 @@ export class PermissionsService {
       .skip(skip)
       .limit(limitDefault)
       .sort(sort as any)
-      .populate(population)
       .exec();
 
     return {

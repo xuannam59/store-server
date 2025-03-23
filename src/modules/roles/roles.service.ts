@@ -14,17 +14,17 @@ export class RolesService {
   ) { }
 
   async create(createRoleDto: CreateRoleDto, user: IUser) {
-    const { name, isActive, description, permissions } = createRoleDto;
+    const { title, isActive, description, permissions } = createRoleDto;
 
     const roleExist = await this.roleModel.findOne({
-      name: name,
+      title,
       isDeleted: false
     })
     if (roleExist)
       throw new BadRequestException("Role đã tồn tại trong hệ thống");
 
     const role = await this.roleModel.create({
-      name, isActive,
+      title, isActive,
       description, permissions,
       createdBy: {
         _id: user._id,
@@ -36,11 +36,11 @@ export class RolesService {
     };
   }
 
-  async findAll(current: number, pageSize: number, qs: string) {
-    const { filter, sort, population, projection } = aqp(qs)
-    delete filter.current
-    delete filter.pageSize
-    filter.isDeleted = false;
+  async findAll(current: number, pageSize: number, query: any) {
+    const { sort } = aqp(query)
+    let filter: any = {
+      isDeleted: false
+    }
 
     let currentDefault = current ?? 1;
     let limitDefault = pageSize ?? 10;
@@ -55,7 +55,7 @@ export class RolesService {
       .skip(skip)
       .limit(limitDefault)
       .sort(sort as any)
-      .populate(population)
+      .populate({ path: "permissions" })
       .exec();
 
     return {
@@ -76,7 +76,7 @@ export class RolesService {
     const result = await this.roleModel.findOne({
       _id: id,
       isDeleted: false
-    }).populate({ path: "permissions", select: { name: 1, method: 1, apiPath: 1, module: 1 } });
+    }).populate({ path: "permissions", select: { method: 1, apiPath: 1, module: 1 } });
 
     if (!result)
       throw new BadRequestException("Không tìm thấy Vai trò")

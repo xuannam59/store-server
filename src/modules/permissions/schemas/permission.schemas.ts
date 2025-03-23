@@ -6,7 +6,7 @@ export type PermissionDocument = HydratedDocument<Permission>
 @Schema({ timestamps: true })
 export class Permission {
     @Prop()
-    name: string
+    title: string
 
     @Prop()
     method: string
@@ -19,7 +19,7 @@ export class Permission {
 
     @Prop({
         type: String,
-        slug: "name",
+        slug: "title",
         unique: true
     })
     slug: string

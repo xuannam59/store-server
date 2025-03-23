@@ -11,8 +11,8 @@ export class CreateReviewDto {
     product_id: string
 
     @IsOptional()
-    @IsMongoId()
-    parent_id: mongoose.Types.ObjectId
+    @IsString()
+    parent_id: string
 
     @IsNotEmpty()
     star: string

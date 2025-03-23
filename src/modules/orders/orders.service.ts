@@ -1,15 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order } from './schemas/order.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { Cart } from '../carts/schemas/cart.schema';
 import { MailService } from '../mail/mail.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import aqp from 'api-query-params';
 import { IUser } from '../users/users.interface';
 import { Product } from '../products/schemas/product.schema';
+import { ReviewsService } from '../reviews/reviews.service';
+import { CreateReviewDto } from '../reviews/dto/create-review.dto';
 
 @Injectable()
 export class OrdersService {
@@ -18,7 +19,8 @@ export class OrdersService {
     @InjectModel(Cart.name) private cartModel: Model<Cart>,
     @InjectModel(Product.name) private productModel: Model<Product>,
     private mailService: MailService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private reviewService: ReviewsService
   ) { }
 
   async create(createOrderDto: CreateOrderDto, cartId: string) {
@@ -125,12 +127,12 @@ export class OrdersService {
         this.orderModel.find(filter).then((orders) => ({
           date: new Date(day),
           purchase: orders.reduce((prev, cur) => {
-            if (cur.status === "success")
+            if (cur.status === 2)
               return prev + cur.totalAmount;
             return prev;
           }, 0),
           orderTotal: orders.length,
-          delivered: orders.filter(item => item.status === "success").length,
+          delivered: orders.filter(item => item.status === 2).length,
         }))
       );
     }
@@ -140,7 +142,7 @@ export class OrdersService {
 
   async findAll(current: number, pageSize: number, query: any) {
     const { sort } = aqp(query);
-    const { startDate, endDate } = query
+    const { startDate, endDate, userId, status } = query
     let filter: any = {};
 
     if (startDate && endDate) {
@@ -151,9 +153,16 @@ export class OrdersService {
         $lte: end
       }
     }
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      filter.userId = userId;
+    }
+
+    if (status) {
+      filter.status = +status;
+    }
 
     let currentDefault = current ? current : 1;
-    let limitDefault = pageSize ? pageSize : 10;
+    let limitDefault = pageSize ? pageSize : 5;
 
     const totalItems = await this.orderModel.countDocuments(filter);
     const totalPage = Math.ceil(totalItems / limitDefault);
@@ -213,7 +222,28 @@ export class OrdersService {
     return "OK";
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} order`;
+  async productReview(orderId: string, body: CreateReviewDto, user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(orderId))
+      throw new BadRequestException("OrderId is invalid");
+
+    const updateResult = await this.orderModel.updateOne(
+      {
+        _id: orderId,
+        "products._id": body.product_id
+      },
+      {
+        $set: {
+          "products.$.review": true
+        }
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      throw new NotFoundException("Order or product not found");
+    }
+
+    await this.reviewService.createReview(body, user);
+
+    return "Successful review"
   }
 }

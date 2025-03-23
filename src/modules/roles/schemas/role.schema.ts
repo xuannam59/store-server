@@ -6,7 +6,7 @@ export type RoleDocument = HydratedDocument<Role>
 @Schema({ timestamps: true })
 export class Role {
     @Prop()
-    name: string
+    title: string
 
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "Permission" })
     permissions: mongoose.Schema.Types.ObjectId[]
@@ -19,7 +19,7 @@ export class Role {
 
     @Prop({
         type: String,
-        slug: "name",
+        slug: "title",
         unique: true
     })
     slug: string

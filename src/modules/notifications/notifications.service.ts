@@ -15,14 +15,22 @@ export class NotificationsService {
   }
 
   async findAll(limit: number) {
+    const filter = {
+      to: "admin"
+    }
     const defaultLimit = limit ? limit : 5;
+    const totalItems = await this.notificationModel.countDocuments({
+      ...filter,
+      isRead: false
+    });
     const result = await this.notificationModel
-      .find({ to: "admin" })
+      .find(filter)
       .limit(defaultLimit)
       .sort({ createdAt: "desc" });
 
 
     return {
+      totalItems,
       result
     };
   }

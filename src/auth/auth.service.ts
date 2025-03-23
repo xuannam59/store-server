@@ -23,15 +23,15 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<any> {
     const user = (await this.usersService.findOneByEmail(username));
     if (user) {
-      const userRole = user.role as unknown as { _id: string, name: string }
-      const temp = await this.roleService.findOne(userRole._id);
+      const userRole = user.role as unknown as { _id: string, title: string }
+      const term = await this.roleService.findOne(userRole._id);
 
       const isValidPassword = comparePasswordHelper(password, user.password);
       if (isValidPassword) {
 
         const objectUser = {
           ...user.toObject(),
-          permissions: temp?.permissions ?? []
+          permissions: term?.permissions ?? []
         }
 
         return objectUser;
@@ -55,8 +55,8 @@ export class AuthService {
     const access_token = this.jwtService.sign(payload);
     const refresh_token = this.createRefreshToken(payload);
 
-    const userRole = user.role as unknown as { _id: string, name: string }
-    const [_, temp] = await Promise.all([
+    const userRole = user.role as unknown as { _id: string, title: string }
+    const [_, term] = await Promise.all([
       this.usersService.updateUserRefresh(refresh_token, _id),
       this.roleService.findOne(userRole._id)
     ]);
@@ -79,7 +79,7 @@ export class AuthService {
         gender,
         role,
         avatar,
-        permissions: temp?.permissions ?? []
+        permissions: term?.permissions ?? []
       }
     };
   }
@@ -112,8 +112,8 @@ export class AuthService {
   // [GET] /auth/account
   async getAccount(user: IUser, res: Response) {
     const { _id, name, email, role, avatar, phone, age, gender } = user;
-    const userRole = user.role as unknown as { _id: string, name: string };
-    const temp = await this.roleService.findOne(userRole._id);
+    const userRole = user.role as unknown as { _id: string, title: string };
+    const term = await this.roleService.findOne(userRole._id);
 
     return {
       _id,
@@ -124,7 +124,7 @@ export class AuthService {
       gender,
       role,
       avatar,
-      permissions: temp?.permissions ?? []
+      permissions: term?.permissions ?? []
     }
   }
 
@@ -151,8 +151,8 @@ export class AuthService {
 
       const refresh_token = this.createRefreshToken(payload);
 
-      const userRole = user.role as unknown as { _id: string, name: string }
-      const temp = await this.roleService.findOne(userRole._id);
+      const userRole = user.role as unknown as { _id: string, title: string }
+      const term = await this.roleService.findOne(userRole._id);
 
       res.cookie("refresh_token", refresh_token, {
         httpOnly: true, // only the server can get it
@@ -174,7 +174,7 @@ export class AuthService {
           email,
           role,
           avatar,
-          permissions: temp?.permissions ?? []
+          permissions: term?.permissions ?? []
         }
       }
 

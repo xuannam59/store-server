@@ -12,6 +12,7 @@ import { Role } from '../roles/schemas/role.schema';
 import { generateRandomNumber } from '@/helpers/generate';
 import { ForgotPassword } from './schemas/forgot-password.schema';
 import { MailService } from '../mail/mail.service';
+import { title } from 'process';
 
 
 @Injectable()
@@ -76,7 +77,7 @@ export class UsersService {
       .skip(skip)
       .sort(sort as any)
       .limit(defaultLimit)
-      .populate({ path: "role", select: { name: 1 } })
+      .populate({ path: "role", select: { title: 1 } })
       .select("-password -refresh_token")
       .exec();
 
@@ -101,7 +102,7 @@ export class UsersService {
       isDeleted: false
     })
       .select("-password -refresh_token")
-      .populate({ path: "role", select: { name: 1 } });
+      .populate({ path: "role", select: { title: 1 } });
 
     return user;
   }
@@ -158,7 +159,7 @@ export class UsersService {
     const user = await this.userModel.findOne({
       email: email,
       isDeleted: false
-    }).populate({ path: "role", select: { name: 1 } })
+    }).populate({ path: "role", select: { title: 1 } })
 
     return user;
   }
@@ -167,7 +168,7 @@ export class UsersService {
     const user = this.userModel.findOne({
       refresh_token: refreshToken,
       isDeleted: false
-    }).populate({ path: "role", select: { name: 1 } });
+    }).populate({ path: "role", select: { title: 1 } });
     return user;
   }
 

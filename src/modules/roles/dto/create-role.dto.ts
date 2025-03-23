@@ -4,7 +4,7 @@ import mongoose from "mongoose"
 export class CreateRoleDto {
     @IsNotEmpty()
     @IsString()
-    name: string
+    title: string
 
     @IsNotEmpty()
     @IsArray()
