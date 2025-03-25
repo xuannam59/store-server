@@ -1,21 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { ReviewsService } from './reviews.service';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { IUser } from '../users/users.interface';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { ReviewsService } from './reviews.service';
 
 @Controller('reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) { }
 
-  @Post()
+  @Post("/:orderId")
   @ResponseMessage("Create review")
   createReview(
     @Body() createReviewDto: CreateReviewDto,
-    @User() user: IUser
+    @User() user: IUser,
+    @Param("orderId") orderId: string
   ) {
-    return this.reviewsService.createReview(createReviewDto, user);
+    return this.reviewsService.createReview(createReviewDto, orderId, user);
   }
 
   @Public()

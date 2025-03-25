@@ -1,28 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { IUser } from '../users/users.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Review } from './schemas/review.schema';
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import aqp from 'api-query-params';
 import { Product } from '../products/schemas/product.schema';
+import { Order } from '../orders/schemas/order.schema';
 
 @Injectable()
 export class ReviewsService {
   constructor(
-    @InjectModel(Review.name) private reviewModule: Model<Review>,
-    @InjectModel(Product.name) private productModule: Model<Product>,
+    @InjectModel(Review.name) private reviewModel: Model<Review>,
+    @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(Order.name) private orderModel: Model<Order>
   ) { }
 
-  async createReview(createReviewDto: CreateReviewDto, user: IUser) {
+  async createReview(createReviewDto: CreateReviewDto, orderId: string, user: IUser) {
     const { comment, product_id, star, images } = createReviewDto
 
-    const result = await this.reviewModule.create({
+    if (!mongoose.Types.ObjectId.isValid(orderId))
+      throw new BadRequestException("OrderId is invalid");
+
+    const updateResult = await this.orderModel.updateOne(
+      {
+        _id: orderId,
+        "products._id": product_id
+      },
+      {
+        $set: {
+          "products.$.review": true
+        }
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      throw new NotFoundException("Order or product not found");
+    }
+
+    await this.reviewModel.create({
       comment, product_id, star, images,
       created_by: user._id
     });
 
-    const reviews = await this.reviewModule.find({
+    const reviews = await this.reviewModel.find({
       product_id,
       isDeleted: false
     });
@@ -34,7 +55,7 @@ export class ReviewsService {
         currentValue.star + previousValue, 0) / numberOfReview).toFixed(2))
       : 0;
 
-    await this.productModule.updateOne({
+    await this.productModel.updateOne({
       _id: product_id
     }, {
       reviews: {
@@ -43,7 +64,7 @@ export class ReviewsService {
       }
     })
 
-    return { _id: result._id };
+    return "Successful review";
   }
 
   async findAllReviews(current: number, pageSize: number, productId: string, qs: string) {
@@ -52,7 +73,7 @@ export class ReviewsService {
     delete filter.pageSize;
     filter.isDeleted = false
 
-    const reviews = await this.reviewModule.find({
+    const reviews = await this.reviewModel.find({
       product_id: productId,
       isDeleted: false
     });
@@ -68,7 +89,7 @@ export class ReviewsService {
     const pages = Math.ceil(totalReviews / defaultPagesize);
     const skip = (defaultCurrent - 1) * defaultPagesize;
 
-    const result = await this.reviewModule.find(filter)
+    const result = await this.reviewModel.find(filter)
       .skip(skip)
       .limit(defaultPagesize)
       .sort({ createdAt: "desc" })
@@ -87,13 +108,13 @@ export class ReviewsService {
   }
 
   async changeLike(reviewId: string, userId: string) {
-    const existUserId = await this.reviewModule.findOne({
+    const existUserId = await this.reviewModel.findOne({
       _id: reviewId,
       like: userId
     });
 
     (existUserId ?
-      await this.reviewModule.updateOne({
+      await this.reviewModel.updateOne({
         _id: reviewId,
         like: userId
       }, {
@@ -102,7 +123,7 @@ export class ReviewsService {
         }
       })
       :
-      await this.reviewModule.updateOne({
+      await this.reviewModel.updateOne({
         _id: reviewId
       }, {
         $push: {

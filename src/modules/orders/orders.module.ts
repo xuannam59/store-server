@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { OrdersController } from './orders.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Order, OrderSchema } from './schemas/order.schema';
 import { Cart, CartSchema } from '../carts/schemas/cart.schema';
 import { MailModule } from '../mail/mail.module';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { Product, ProductSchema } from '../products/schemas/product.schema';
-import { ReviewsModule } from '../reviews/reviews.module';
+import { OrdersController } from './orders.controller';
+import { OrdersService } from './orders.service';
+import { Order, OrderSchema } from './schemas/order.schema';
 
 @Module({
   imports: [MongooseModule.forFeature([
@@ -16,8 +15,7 @@ import { ReviewsModule } from '../reviews/reviews.module';
     { name: Product.name, schema: ProductSchema }
   ]),
     MailModule,
-    NotificationsModule,
-    ReviewsModule
+    NotificationsModule
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

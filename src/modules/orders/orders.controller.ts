@@ -1,10 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, Query } from '@nestjs/common';
-import { OrdersService } from './orders.service';
-import { CreateOrderDto } from './dto/create-order.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { IUser } from '../users/users.interface';
-import { CreateReviewDto } from '../reviews/dto/create-review.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 export class OrdersController {
@@ -52,15 +51,5 @@ export class OrdersController {
     @Body() body
   ) {
     return this.ordersService.changeOrder(id, body, user);
-  }
-
-  @Post("review/:id")
-  @ResponseMessage("Review the product")
-  reviewProduct(
-    @Param("id") orderId: string,
-    @Body() body: CreateReviewDto,
-    @User() user: IUser
-  ) {
-    return this.ordersService.productReview(orderId, body, user);
   }
 }

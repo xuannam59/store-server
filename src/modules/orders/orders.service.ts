@@ -1,16 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Order } from './schemas/order.schema';
+import aqp from 'api-query-params';
 import mongoose, { Model } from 'mongoose';
 import { Cart } from '../carts/schemas/cart.schema';
 import { MailService } from '../mail/mail.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import aqp from 'api-query-params';
-import { IUser } from '../users/users.interface';
 import { Product } from '../products/schemas/product.schema';
-import { ReviewsService } from '../reviews/reviews.service';
-import { CreateReviewDto } from '../reviews/dto/create-review.dto';
+import { IUser } from '../users/users.interface';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { Order } from './schemas/order.schema';
 
 @Injectable()
 export class OrdersService {
@@ -20,7 +18,6 @@ export class OrdersService {
     @InjectModel(Product.name) private productModel: Model<Product>,
     private mailService: MailService,
     private notificationsService: NotificationsService,
-    private reviewService: ReviewsService
   ) { }
 
   async create(createOrderDto: CreateOrderDto, cartId: string) {
@@ -220,30 +217,5 @@ export class OrdersService {
       return result._id;
     }
     return "OK";
-  }
-
-  async productReview(orderId: string, body: CreateReviewDto, user: IUser) {
-    if (!mongoose.Types.ObjectId.isValid(orderId))
-      throw new BadRequestException("OrderId is invalid");
-
-    const updateResult = await this.orderModel.updateOne(
-      {
-        _id: orderId,
-        "products._id": body.product_id
-      },
-      {
-        $set: {
-          "products.$.review": true
-        }
-      }
-    );
-
-    if (updateResult.modifiedCount === 0) {
-      throw new NotFoundException("Order or product not found");
-    }
-
-    await this.reviewService.createReview(body, user);
-
-    return "Successful review"
   }
 }

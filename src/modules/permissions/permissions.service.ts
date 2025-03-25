@@ -5,7 +5,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Permission } from './schemas/permission.schemas';
 import mongoose, { Model } from 'mongoose';
 import { IUser } from '../users/users.interface';
-import { use } from 'passport';
 import aqp from 'api-query-params';
 
 @Injectable()
