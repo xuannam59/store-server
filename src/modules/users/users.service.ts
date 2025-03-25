@@ -4,7 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './schemas/user.schema';
 import mongoose, { Model } from 'mongoose';
-import { hashPasswordHelper } from 'src/helpers/util';
+import { comparePasswordHelper, hashPasswordHelper } from 'src/helpers/util';
 import aqp from 'api-query-params';
 import { RegisterUser } from '@/auth/dto/auth-user.dto';
 import { IUser } from './users.interface';
@@ -259,10 +259,10 @@ export class UsersService {
     }
   }
 
-  // [POST] /auth/resetPassword
+  // [POST] /auth/reset-password
   async resetPassword(email: string, otp: string, password: string, confirmPassword: string) {
     if (password !== confirmPassword)
-      throw new BadRequestException("password và confirmPassword không giống nhau");
+      throw new BadRequestException("password and confirmPassword are not the same");
 
     const existOtp = await this.forgotPasswordModel.findOne({
       email,
@@ -270,7 +270,7 @@ export class UsersService {
     });
 
     if (!existOtp)
-      throw new BadRequestException("Vui lòng thực hiện thao tạc quên mật khẩu");
+      throw new BadRequestException("Please re-implement the password forgotten feature");
 
     const hashPassword = hashPasswordHelper(password);
     const result = await this.userModel.updateOne({
@@ -282,4 +282,30 @@ export class UsersService {
 
     return result;
   }
+
+  // [Patch] /auth/change-password
+  async ChangePassword(user: IUser, oldPassword: string, newPassword: string, confirmPassword: string) {
+    const infoUser = await this.userModel.findOne({
+      _id: user._id,
+      email: user.email,
+      isDeleted: false
+    });
+
+    if (!comparePasswordHelper(oldPassword, infoUser.password))
+      throw new BadRequestException("oldPassword is incorrect");
+
+    if (newPassword !== confirmPassword)
+      throw new BadRequestException("newPassword and confirmPassword are the same");
+
+    const hashNewPassword = hashPasswordHelper(newPassword);
+    await this.userModel.updateOne({
+      _id: user._id,
+      email: user.email,
+    }, {
+      password: hashNewPassword
+    })
+
+    return "Change the password successfully"
+  }
+
 }

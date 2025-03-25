@@ -49,3 +49,14 @@ export class ResetPassword {
     @IsNotEmpty({ message: "confirmPassword không được để trống" })
     confirmPassword: string
 }
+
+export class ChangePassword {
+    @IsNotEmpty({ message: "oldPassword không được để trống" })
+    oldPassword: string
+
+    @IsNotEmpty({ message: "newPassword không được để trống" })
+    newPassword: string
+
+    @IsNotEmpty({ message: "confirmPassword không được để trống" })
+    confirmPassword: string
+}

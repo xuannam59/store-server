@@ -3,7 +3,7 @@ import { UsersService } from '@/modules/users/users.service';
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { comparePasswordHelper } from 'src/helpers/util';
-import { ConfirmCode, CreateForgotPassword, RegisterUser, ResetPassword } from './dto/auth-user.dto';
+import { ChangePassword, ConfirmCode, CreateForgotPassword, RegisterUser, ResetPassword } from './dto/auth-user.dto';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import ms from 'ms';
@@ -200,9 +200,16 @@ export class AuthService {
   }
 
   // [POST] /auth/reset-password
-  async handleResetpassword(data: ResetPassword) {
+  async handleResetPassword(data: ResetPassword) {
     const { email, password, confirmPassword, otp } = data;
     const result = await this.usersService.resetPassword(email, otp, password, confirmPassword);
+    return result;
+  }
+
+  // [Path] /auth/change-password
+  async handleChangePassword(user: IUser, data: ChangePassword) {
+    const { oldPassword, newPassword, confirmPassword } = data;
+    const result = await this.usersService.ChangePassword(user, oldPassword, newPassword, confirmPassword);
     return result;
   }
 }
