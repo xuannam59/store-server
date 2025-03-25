@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) { }
 
+  //[POST] api/v1/roles
+  @UseGuards(PermissionGuard)
   @Post()
   @ResponseMessage("Create a new role")
   create(
@@ -34,6 +37,8 @@ export class RolesController {
     return this.rolesService.findOne(id);
   }
 
+  //[PATCH] api/v1/roles/:id
+  @UseGuards(PermissionGuard)
   @Patch(':id')
   @ResponseMessage("Update a role")
   update(
@@ -44,6 +49,8 @@ export class RolesController {
     return this.rolesService.update(id, updateRoleDto, user);
   }
 
+  //[DELETE] api/v1/roles/:id
+  @UseGuards(PermissionGuard)
   @Delete(':id')
   @ResponseMessage("delete a role")
   remove(

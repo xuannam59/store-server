@@ -1,9 +1,10 @@
 import { Public, ResponseMessage, User } from '@/decorators/customize';
-import { Body, Controller, Get, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import { IUser } from '../users/users.interface';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('orders')
 export class OrdersController {
@@ -43,6 +44,8 @@ export class OrdersController {
     return this.ordersService.findAll(+current, +pageSize, query);
   }
 
+  //[PATCH] api/v1/orders/:id
+  @UseGuards(PermissionGuard)
   @Patch('update/:id')
   @ResponseMessage("Change the status of the order")
   update(

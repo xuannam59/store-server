@@ -14,7 +14,7 @@ export class ForgotPassword {
     @Prop({
         type: Date,
         default: Date.now,
-        expires: 300
+        expires: 180
     })
     expireAt: Date;
 }

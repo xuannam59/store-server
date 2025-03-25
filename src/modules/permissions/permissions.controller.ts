@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { PermissionsService } from './permissions.service';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
 
+  //[POST] api/v1/permissions
+  @UseGuards(PermissionGuard)
   @Post()
   @ResponseMessage("Create a new permission")
   create(
@@ -36,6 +39,8 @@ export class PermissionsController {
     return this.permissionsService.findOne(id);
   }
 
+  //[PATCH] api/v1/permissions/:id
+  @UseGuards(PermissionGuard)
   @Patch(':id')
   @ResponseMessage("update a  permission")
   update(
@@ -46,6 +51,8 @@ export class PermissionsController {
     return this.permissionsService.update(id, updatePermissionDto, user);
   }
 
+  //[DELETE] api/v1/permissions/:id
+  @UseGuards(PermissionGuard)
   @Delete(':id')
   @ResponseMessage("delete a  permission")
   remove(@Param('id') id: string, @User() user: IUser) {

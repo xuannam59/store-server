@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { IUser } from '../users/users.interface';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) { }
 
+  //[POST] api/v1/categories
+  @UseGuards(PermissionGuard)
   @Post()
   @ResponseMessage("Create a new category")
   create(
@@ -34,6 +37,8 @@ export class CategoriesController {
     return this.categoriesService.findOne(id);
   }
 
+  //[PATCH] api/v1/categories/:id
+  @UseGuards(PermissionGuard)
   @Patch(':id')
   @ResponseMessage("update a category")
   update(
@@ -43,6 +48,8 @@ export class CategoriesController {
     return this.categoriesService.update(id, updateCategoryDto, user);
   }
 
+  //[DELETE] api/v1/categories/:id
+  @UseGuards(PermissionGuard)
   @Delete(':id')
   @ResponseMessage("delete a category")
   remove(

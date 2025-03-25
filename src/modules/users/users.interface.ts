@@ -10,8 +10,10 @@ export interface IUser {
         title: string
     };
     avatar: string;
-    permission: {
+    permissions: {
         _id: string,
-        title: string
+        method: string,
+        module: string,
+        apiPath: string
     }[]
 }

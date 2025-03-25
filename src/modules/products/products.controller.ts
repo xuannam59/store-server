@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  //[POST] api/v1/products
+  @UseGuards(PermissionGuard)
   @Post()
   @ResponseMessage("Create a new product")
   create(
@@ -50,6 +53,8 @@ export class ProductsController {
     return this.productsService.findOne(idOrSlug);
   }
 
+  //[PATCH] api/v1/products/:id
+  @UseGuards(PermissionGuard)
   @Patch(':id')
   @ResponseMessage("Update a product")
   update(
@@ -60,6 +65,8 @@ export class ProductsController {
     return this.productsService.update(id, updateProductDto, user);
   }
 
+  //[DELETE] api/v1/products/:id
+  @UseGuards(PermissionGuard)
   @Delete("delete-multiple")
   @ResponseMessage("Delete multiple products")
   removeMultiple(
@@ -69,6 +76,8 @@ export class ProductsController {
     return this.productsService.removeMultiple(ids, user);
   }
 
+  //[DELETE] api/v1/products/:id
+  @UseGuards(PermissionGuard)
   @Delete(':id')
   @ResponseMessage("delete a product")
   remove(

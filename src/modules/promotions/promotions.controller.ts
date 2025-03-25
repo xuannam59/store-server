@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { PromotionsService } from './promotions.service';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from '../users/users.interface';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('promotions')
 export class PromotionsController {
   constructor(private readonly promotionsService: PromotionsService) { }
 
+  //[POST] api/v1/promotions
+  @UseGuards(PermissionGuard)
   @ResponseMessage("Create create new promotion")
   @Post()
   create(
@@ -38,6 +41,8 @@ export class PromotionsController {
     return this.promotionsService.checkDiscountCode(code, totalAmount);
   }
 
+  //[PATCH] api/v1/promotions/:id
+  @UseGuards(PermissionGuard)
   @Patch(':id')
   @ResponseMessage("Update promotion")
   update(
@@ -48,6 +53,8 @@ export class PromotionsController {
     return this.promotionsService.update(id, updatePromotionDto, user);
   }
 
+  //[DELETE] api/v1/promotions/:id
+  @UseGuards(PermissionGuard)
   @Delete(':id')
   @ResponseMessage("Delete promotion")
   remove(@Param('id') id: string, @User() user: IUser) {

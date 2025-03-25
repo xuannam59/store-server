@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public, ResponseMessage, User } from '@/decorators/customize';
 import { IUser } from './users.interface';
+import { PermissionGuard } from '@/guards/permission.guards';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
-  // [POST] /users
+  //[POST] api/v1/users
+  @UseGuards(PermissionGuard)
   @Post()
   @ResponseMessage("Create a new user")
   create(
@@ -37,7 +39,8 @@ export class UsersController {
     return this.usersService.findOne(id);
   }
 
-  // [PATCH] /users/:id
+  //[PATCH] api/v1/users/:id
+  @UseGuards(PermissionGuard)
   @ResponseMessage("Update a user")
   @Patch(':id')
   update(
@@ -48,7 +51,8 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto, user);
   }
 
-  // [DELETE] /users/:id
+  //[DELETED] api/v1/users/:id
+  @UseGuards(PermissionGuard)
   @ResponseMessage("Delete a user")
   @Delete(':id')
   remove(
