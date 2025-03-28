@@ -21,6 +21,7 @@ import mongooseSlugUpdater from 'mongoose-slug-updater';
 import { BullModule } from '@nestjs/bullmq';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PayOsModule } from './modules/pay-os/pay-os.module';
+import { GeneralSettingModule } from './modules/general-setting/general-setting.module';
 
 @Module({
   imports: [
@@ -64,7 +65,8 @@ import { PayOsModule } from './modules/pay-os/pay-os.module';
     DiscussModule,
     OrdersModule,
     NotificationsModule,
-    PayOsModule
+    PayOsModule,
+    GeneralSettingModule
   ],
   controllers: [AppController],
   providers: [AppService],
