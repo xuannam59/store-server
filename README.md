@@ -8,4 +8,8 @@ npm i
 npm run dev
 ```
 
+3. Link fontend của dự án
+- client: https://github.com/xuannam59/template-client
+- Admint: https://github.com/xuannam59/template-admin
+
 Tác giả: Xuân Nam
